@@ -14,17 +14,23 @@ class RainEffect {
 
         this.drops = [];
         this.ripples = [];
-        this.trees = [];
         this.width = window.innerWidth;
         this.height = window.innerHeight;
+
+        // Barça colors (very light versions)
+        this.colors = {
+            blue: 'rgba(0, 77, 152, 0.05)',
+            red: 'rgba(165, 0, 68, 0.05)',
+            rippleBlue: 'rgba(0, 77, 152, 0.2)',
+            rippleRed: 'rgba(165, 0, 68, 0.2)'
+        };
 
         this.init();
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('mousedown', (e) => this.addRipple(e.clientX, e.clientY));
         
-        // Optional: Splash on mouse move too, but sparingly
         window.addEventListener('mousemove', (e) => {
-            if (Math.random() > 0.95) this.addRipple(e.clientX, e.clientY, 10);
+            if (Math.random() > 0.95) this.addRipple(e.clientX, e.clientY, 15);
         });
 
         this.animate();
@@ -32,10 +38,9 @@ class RainEffect {
 
     init() {
         this.resize();
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 80; i++) {
             this.drops.push(this.createDrop());
         }
-        this.createTrees();
     }
 
     resize() {
@@ -43,81 +48,41 @@ class RainEffect {
         this.height = window.innerHeight;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
-        this.createTrees(); // Re-create trees on resize to fit screen
     }
 
     createDrop() {
+        const isBlue = Math.random() > 0.5;
         return {
             x: Math.random() * this.width,
             y: Math.random() * this.height,
-            length: Math.random() * 20 + 10,
-            speed: Math.random() * 10 + 5,
-            opacity: Math.random() * 0.3 + 0.1
+            length: Math.random() * 15 + 10,
+            speed: Math.random() * 8 + 4,
+            color: isBlue ? this.colors.blue : this.colors.red
         };
     }
 
     addRipple(x, y, radius = 30) {
+        const isBlue = Math.random() > 0.5;
         this.ripples.push({
             x, y,
             r: 0,
             maxR: radius,
-            opacity: 0.5
+            opacity: 0.4,
+            color: isBlue ? this.colors.rippleBlue : this.colors.rippleRed
         });
-    }
-
-    createTrees() {
-        this.trees = [];
-        const treeCount = 5;
-        for (let i = 0; i < treeCount; i++) {
-            this.trees.push({
-                x: (i + 0.5) * (this.width / treeCount) + (Math.random() - 0.5) * 100,
-                size: Math.random() * 100 + 150,
-                opacity: 0.05 + Math.random() * 0.05
-            });
-        }
-    }
-
-    drawTree(x, y, size, opacity) {
-        this.ctx.save();
-        this.ctx.translate(x, y);
-        this.ctx.fillStyle = `rgba(15, 23, 42, ${opacity})`; // slate-900 with opacity
-        
-        // Simple triangular tree
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, 0);
-        this.ctx.lineTo(-size / 2, size);
-        this.ctx.lineTo(size / 2, size);
-        this.ctx.closePath();
-        this.ctx.fill();
-
-        // Second layer
-        this.ctx.translate(0, -size * 0.4);
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, 0);
-        this.ctx.lineTo(-size * 0.4, size * 0.8);
-        this.ctx.lineTo(size * 0.4, size * 0.8);
-        this.ctx.closePath();
-        this.ctx.fill();
-
-        this.ctx.restore();
     }
 
     animate() {
         this.ctx.clearRect(0, 0, this.width, this.height);
 
-        // Draw Trees first (background)
-        this.trees.forEach(tree => {
-            this.drawTree(tree.x, this.height - tree.size, tree.size, tree.opacity);
-        });
-
         // Draw Rain
-        this.ctx.strokeStyle = 'rgba(100, 116, 139, 0.2)'; // slate-500 with low opacity
         this.ctx.lineWidth = 1;
         this.ctx.lineCap = 'round';
         this.drops.forEach(drop => {
+            this.ctx.strokeStyle = drop.color;
             this.ctx.beginPath();
             this.ctx.moveTo(drop.x, drop.y);
-            this.ctx.lineTo(drop.x + 1, drop.y + drop.length); // Slight tilt
+            this.ctx.lineTo(drop.x + 0.5, drop.y + drop.length);
             this.ctx.stroke();
 
             drop.y += drop.speed;
@@ -131,12 +96,14 @@ class RainEffect {
         this.ripples.forEach((ripple, index) => {
             this.ctx.beginPath();
             this.ctx.arc(ripple.x, ripple.y, ripple.r, 0, Math.PI * 2);
-            this.ctx.strokeStyle = `rgba(100, 116, 139, ${ripple.opacity})`;
+            // Replace the opacity in the rgba string
+            const color = ripple.color.replace(/[\d\.]+\)$/g, `${ripple.opacity})`);
+            this.ctx.strokeStyle = color;
             this.ctx.lineWidth = 1;
             this.ctx.stroke();
 
-            ripple.r += 1.5;
-            ripple.opacity -= 0.008;
+            ripple.r += 1.2;
+            ripple.opacity -= 0.006;
 
             if (ripple.opacity <= 0) {
                 this.ripples.splice(index, 1);

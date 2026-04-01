@@ -13,9 +13,14 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
     <style>
         body {
-            background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+            background: linear-gradient(135deg, #f0f7ff 0%, #fff5f7 100%);
             min-height: 100vh;
         }
+        .prose-blue :where(a):not(:where([class~="not-prose"] *)) {
+            color: #004d98;
+        }
+        .text-blue-600 { color: #004d98; }
+        .hover\:text-blue-800:hover { color: #003366; }
     </style>
 </head>
 <body class="text-slate-900">
