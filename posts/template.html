@@ -13,28 +13,17 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
     <style>
         body {
-            background-color: #f0fdf4; /* Light green background */
+            background-color: #dcfce7; /* Slightly deeper light green */
             min-height: 100vh;
             display: flex;
             justify-content: center;
         }
-        .paper-container {
-            background-color: #f4ecd8; /* Kraft paper color */
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        .content-container {
             min-height: 100vh;
-            width: 48rem; /* Fixed width */
+            width: 48rem;
             max-width: 100%;
             padding: 4rem 2rem;
             position: relative;
-        }
-        /* Subtle paper texture */
-        .paper-container::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url("https://www.transparenttextures.com/patterns/felt.png");
-            opacity: 0.05;
-            pointer-events: none;
         }
         .prose-blue :where(a):not(:where([class~="not-prose"] *)) {
             color: #004d98;
@@ -44,7 +33,7 @@
     </style>
 </head>
 <body class="text-slate-900">
-    <div class="paper-container">
+    <div class="content-container">
         <nav class="mb-12">
             <a href="../index.html" class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

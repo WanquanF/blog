@@ -8,37 +8,26 @@
     <script src="assets/js/rain-effects.js"></script>
     <style>
         body {
-            background-color: #f0fdf4; /* Light green background */
+            background-color: #dcfce7; /* Slightly deeper light green */
             min-height: 100vh;
             display: flex;
             justify-content: center;
         }
-        .paper-container {
-            background-color: #f4ecd8; /* Kraft paper color */
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        .content-container {
             min-height: 100vh;
-            width: 48rem; /* Fixed width */
+            width: 48rem;
             max-width: 100%;
             padding: 4rem 2rem;
             position: relative;
         }
-        /* Subtle paper texture */
-        .paper-container::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url("https://www.transparenttextures.com/patterns/felt.png");
-            opacity: 0.05;
-            pointer-events: none;
-        }
         .text-blue-600 { color: #004d98; }
         .hover\:text-blue-800:hover { color: #003366; }
         .group-hover\:text-blue-600:hover { color: #004d98; }
-        .border-slate-200 { border-color: rgba(0, 0, 0, 0.05); }
+        .border-slate-200 { border-color: rgba(0, 0, 0, 0.08); }
     </style>
 </head>
 <body class="text-slate-900 font-sans">
-    <div class="paper-container">
+    <div class="content-container">
         <header class="mb-16">
             <h1 class="text-3xl font-bold tracking-tight">WanquanF</h1>
             <p class="text-slate-500 mt-2">分享技术、算法与一些随笔</p>
