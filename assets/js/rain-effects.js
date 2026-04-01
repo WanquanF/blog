@@ -14,15 +14,18 @@ class RainEffect {
 
         this.drops = [];
         this.ripples = [];
+        this.splashes = []; // New array for bottom splashes
         this.width = window.innerWidth;
         this.height = window.innerHeight;
 
-        // Barça colors (very light versions)
+        // Barça colors (slightly more visible but still subtle)
         this.colors = {
-            blue: 'rgba(0, 77, 152, 0.05)',
-            red: 'rgba(165, 0, 68, 0.05)',
-            rippleBlue: 'rgba(0, 77, 152, 0.2)',
-            rippleRed: 'rgba(165, 0, 68, 0.2)'
+            blue: 'rgba(0, 77, 152, 0.15)',
+            red: 'rgba(165, 0, 68, 0.15)',
+            rippleBlue: 'rgba(0, 77, 152, 0.3)',
+            rippleRed: 'rgba(165, 0, 68, 0.3)',
+            splashBlue: 'rgba(0, 77, 152, 0.2)',
+            splashRed: 'rgba(165, 0, 68, 0.2)'
         };
 
         this.init();
@@ -57,7 +60,8 @@ class RainEffect {
             y: Math.random() * this.height,
             length: Math.random() * 15 + 10,
             speed: Math.random() * 8 + 4,
-            color: isBlue ? this.colors.blue : this.colors.red
+            color: isBlue ? this.colors.blue : this.colors.red,
+            isBlue: isBlue
         };
     }
 
@@ -70,6 +74,23 @@ class RainEffect {
             opacity: 0.4,
             color: isBlue ? this.colors.rippleBlue : this.colors.rippleRed
         });
+    }
+
+    addSplash(x, y, isBlue) {
+        const count = 3 + Math.floor(Math.random() * 3);
+        const color = isBlue ? this.colors.splashBlue : this.colors.splashRed;
+        for (let i = 0; i < count; i++) {
+            this.splashes.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 2,
+                vy: -Math.random() * 3 - 1, // Move upwards
+                radius: Math.random() * 1.5 + 0.5,
+                opacity: 0.5,
+                color: color,
+                gravity: 0.1
+            });
+        }
     }
 
     animate() {
@@ -87,8 +108,27 @@ class RainEffect {
 
             drop.y += drop.speed;
             if (drop.y > this.height) {
+                this.addSplash(drop.x, this.height, drop.isBlue); // Trigger splash
                 drop.y = -drop.length;
                 drop.x = Math.random() * this.width;
+            }
+        });
+
+        // Draw Splashes
+        this.splashes.forEach((splash, index) => {
+            this.ctx.beginPath();
+            this.ctx.arc(splash.x, splash.y, splash.radius, 0, Math.PI * 2);
+            const color = splash.color.replace(/[\d\.]+\)$/g, `${splash.opacity})`);
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
+
+            splash.x += splash.vx;
+            splash.y += splash.vy;
+            splash.vy += splash.gravity;
+            splash.opacity -= 0.01;
+
+            if (splash.opacity <= 0) {
+                this.splashes.splice(index, 1);
             }
         });
 
@@ -96,7 +136,6 @@ class RainEffect {
         this.ripples.forEach((ripple, index) => {
             this.ctx.beginPath();
             this.ctx.arc(ripple.x, ripple.y, ripple.r, 0, Math.PI * 2);
-            // Replace the opacity in the rgba string
             const color = ripple.color.replace(/[\d\.]+\)$/g, `${ripple.opacity})`);
             this.ctx.strokeStyle = color;
             this.ctx.lineWidth = 1;
