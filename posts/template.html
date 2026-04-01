@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muon: 一个用于大模型隐藏层的优化器 | WanquanF</title>
+    <title>{{ TITLE }} | WanquanF</title>
+    <!-- 使用 Tailwind Typography 插件自动处理文章样式 -->
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <!-- KaTeX 数学公式支持 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
@@ -21,32 +23,18 @@
         </nav>
         
         <header class="mb-12">
-            <h1 class="text-4xl font-bold tracking-tight mb-4">Muon: 一个用于大模型隐藏层的优化器</h1>
+            <h1 class="text-4xl font-bold tracking-tight mb-4">{{ TITLE }}</h1>
             <div class="flex items-center gap-4 text-slate-500 text-sm">
-                <time datetime="2026-04-01">2026 年 4 月 1 日</time>
+                <time datetime="{{ DATE }}">{{ DATE_DISPLAY }}</time>
                 <span>·</span>
-                <span>阅读时间约 25 分钟</span>
+                <span>阅读时间约 {{ READ_TIME }} 分钟</span>
             </div>
         </header>
 
+        <!-- 文章正文 -->
         <article class="prose prose-slate lg:prose-lg prose-blue max-w-none">
-            <p>这里写你的笔记正文……</p>
-            <p>公式示例：$$ \text{Muon update} = \dots $$</p>
-            <!-- 在这里添加更多内容 -->
+            {{ CONTENT }}
         </article>
-
-        <section class="mt-24 pt-12 border-t border-slate-200">
-            <h3 class="text-lg font-semibold mb-6">如何引用这篇笔记</h3>
-            <div class="bg-slate-100 p-6 rounded-xl overflow-x-auto font-mono text-sm text-slate-700">
-<pre>@article{wanquan2026muon,
-  title   = "Muon: 一个用于大模型隐藏层的优化器",
-  author  = "WanquanF",
-  journal = "WanquanF 笔记",
-  year    = "2026",
-  url     = "https://wanquanf.github.io/blog/posts/2026-04-01-muon-optimizer.html"
-}</pre>
-            </div>
-        </section>
 
         <footer class="mt-24 text-center text-slate-400 text-sm">
             &copy; 2026 WanquanF.
