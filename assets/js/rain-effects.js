@@ -8,7 +8,7 @@ class RainEffect {
         this.canvas.style.left = '0';
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
-        this.canvas.style.zIndex = '-1';
+        this.canvas.style.zIndex = '9999';
         this.canvas.style.pointerEvents = 'none';
         document.body.appendChild(this.canvas);
 
