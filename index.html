@@ -40,24 +40,70 @@
         .nav-link:hover::after {
             width: 100%;
         }
+        
+        /* Language Toggle Styles */
+        html[lang="en"] .lang-zh { display: none !important; }
+        html[lang="zh-CN"] .lang-en { display: none !important; }
+        
+        .lang-btn {
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background-color: #f3f4f6;
+            color: #4b5563;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            background-color: #e5e7eb;
+            color: #111827;
+        }
     </style>
+    <script>
+        function toggleLanguage() {
+            const html = document.documentElement;
+            const currentLang = html.getAttribute('lang') || 'zh-CN';
+            const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
+            html.setAttribute('lang', newLang);
+            localStorage.setItem('blog-lang', newLang);
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedLang = localStorage.getItem('blog-lang') || 'zh-CN';
+            document.documentElement.setAttribute('lang', savedLang);
+        });
+    </script>
 </head>
 <body class="max-w-3xl mx-auto px-6 py-12">
     <header class="mb-16">
         <nav class="flex justify-between items-center mb-12">
             <a href="index.html" class="text-xl font-bold tracking-tight">Wanquan Feng</a>
-            <div class="space-x-6 text-sm font-medium text-gray-600">
-                <a href="https://wanquanf.github.io/" class="nav-link hover:text-blue-600">Home</a>
-                <a href="https://wanquanf.github.io/#publications" class="nav-link hover:text-blue-600">Research</a>
-                <a href="index.html" class="nav-link text-blue-600">Blog</a>
-                <a href="https://wanquanf.github.io/#news" class="nav-link hover:text-blue-600">News</a>
+            <div class="flex items-center space-x-6 text-sm font-medium text-gray-600">
+                <a href="https://wanquanf.github.io/" class="nav-link hover:text-blue-600">
+                    <span class="lang-en">Home</span><span class="lang-zh">首页</span>
+                </a>
+                <a href="https://wanquanf.github.io/#publications" class="nav-link hover:text-blue-600">
+                    <span class="lang-en">Research</span><span class="lang-zh">研究</span>
+                </a>
+                <a href="index.html" class="nav-link text-blue-600">
+                    <span class="lang-en">Blog</span><span class="lang-zh">博客</span>
+                </a>
+                <a href="https://wanquanf.github.io/#news" class="nav-link hover:text-blue-600">
+                    <span class="lang-en">News</span><span class="lang-zh">新闻</span>
+                </a>
+                <button onclick="toggleLanguage()" class="lang-btn ml-2">
+                    <span class="lang-zh">English</span><span class="lang-en">中文</span>
+                </button>
             </div>
         </nav>
         <div class="space-y-4">
-            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">Blog</h1>
+            <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">
+                <span class="lang-en">Blog</span><span class="lang-zh">博客</span>
+            </h1>
             <p class="text-lg text-gray-500 max-w-2xl">
-                Thoughts on Multimodal AI, Video Generation, and World Models. 
-                Welcome to my personal notebook.
+                <span class="lang-en">Thoughts on Multimodal AI, Video Generation, and World Models. Welcome to my personal notebook.</span>
+                <span class="lang-zh">关于多模态AI、视频生成和世界模型的思考。欢迎来到我的个人笔记。</span>
             </p>
         </div>
     </header>
@@ -67,16 +113,18 @@
             <a href="posts/2026-04-01-flow-grpo.html" class="block">
                 <header class="mb-2">
                     <h2 class="post-title text-2xl font-bold tracking-tight text-gray-900 transition-colors">
-                        应用案例：Flow-GRPO
+                        <span class="lang-zh">应用案例：Flow-GRPO</span>
+                        <span class="lang-en">Use Case: Flow-GRPO</span>
                     </h2>
                     <div class="flex items-center gap-3 text-sm text-gray-400 mt-2">
-                        <time datetime="2026-04-01">April 1, 2026</time>
+                        <time datetime="2026-04-01"><span class="lang-zh">2026年4月1日</span><span class="lang-en">April 1, 2026</span></time>
                         <span>·</span>
-                        <span>5 min read</span>
+                        <span><span class="lang-zh">阅读约 5 分钟</span><span class="lang-en">5 min read</span></span>
                     </div>
                 </header>
-                <section class="text-gray-600 leading-relaxed">
-                    在 Flow-GRPO 论文中，将 reverse 过程改造成 SDE 的简要分析。探讨采样过程中的随机性引入及其数学表达。
+                <section class="text-gray-600 leading-relaxed mt-3">
+                    <span class="lang-zh">在 Flow-GRPO 论文中，将 reverse 过程改造成 SDE 的简要分析。探讨采样过程中的随机性引入及其数学表达。</span>
+                    <span class="lang-en">A brief analysis of transforming the reverse process into an SDE in the Flow-GRPO paper. Exploring the introduction of randomness during sampling and its mathematical expression.</span>
                 </section>
             </a>
         </article>
@@ -85,27 +133,29 @@
             <a href="posts/2026-04-01-muon-optimizer.html" class="block">
                 <header class="mb-2">
                     <h2 class="post-title text-2xl font-bold tracking-tight text-gray-900 transition-colors">
-                        Muon: 一个用于大模型隐藏层的优化器
+                        <span class="lang-zh">Muon: 一个用于大模型隐藏层的优化器</span>
+                        <span class="lang-en">Muon: An Optimizer for Hidden Layers in Large Models</span>
                     </h2>
                     <div class="flex items-center gap-3 text-sm text-gray-400 mt-2">
-                        <time datetime="2026-04-01">April 1, 2026</time>
+                        <time datetime="2026-04-01"><span class="lang-zh">2026年4月1日</span><span class="lang-en">April 1, 2026</span></time>
                         <span>·</span>
-                        <span>25 min read</span>
+                        <span><span class="lang-zh">阅读约 25 分钟</span><span class="lang-en">25 min read</span></span>
                     </div>
                 </header>
-                <section class="text-gray-600 leading-relaxed">
-                    关于大模型隐藏层优化器 Muon 的一些笔记与思考。深入理解其优化机制及在训练大规模模型中的应用。
+                <section class="text-gray-600 leading-relaxed mt-3">
+                    <span class="lang-zh">关于大模型隐藏层优化器 Muon 的一些笔记与思考。深入理解其优化机制及在训练大规模模型中的应用。</span>
+                    <span class="lang-en">Notes and thoughts on Muon, an optimizer for hidden layers in large models. Deeply understanding its optimization mechanism and application in training large-scale models.</span>
                 </section>
             </a>
         </article>
     </main>
 
     <footer class="mt-24 pt-8 border-t border-gray-100 text-center text-sm text-gray-400">
-        <p>&copy; 2026 Wanquan Feng. All rights reserved.</p>
+        <p>&copy; 2026 Wanquan Feng. <span class="lang-en">All rights reserved.</span><span class="lang-zh">保留所有权利。</span></p>
         <div class="mt-4 flex justify-center space-x-4">
-            <a href="https://scholar.google.com/citations?user=na2akZYAAAAJ" class="hover:text-gray-600">Scholar</a>
+            <a href="https://scholar.google.com/citations?user=na2akZYAAAAJ" class="hover:text-gray-600"><span class="lang-en">Scholar</span><span class="lang-zh">学术主页</span></a>
             <a href="https://github.com/wanquanf" class="hover:text-gray-600">GitHub</a>
-            <a href="https://www.zhihu.com/people/xuanya2017" class="hover:text-gray-600">Zhihu</a>
+            <a href="https://www.zhihu.com/people/xuanya2017" class="hover:text-gray-600"><span class="lang-en">Zhihu</span><span class="lang-zh">知乎</span></a>
         </div>
     </footer>
 </body>
