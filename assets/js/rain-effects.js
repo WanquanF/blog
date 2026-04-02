@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Arrays for different particles
     let drops = [], splashes = [], snowflakes = [];
     let fireflies = [], cherries = [], dandelions = [], ripples = [], stars = [];
+    let lightning = null;
     let mouse = { x: -1000, y: -1000 };
     document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
     document.addEventListener('click', e => {
@@ -132,10 +133,12 @@ document.addEventListener("DOMContentLoaded", function() {
     class Dandelion{constructor(){this.reset(!0)}reset(r){this.x=Math.random()*width;this.y=r?Math.random()*height:height+20;this.vx=Math.random()*1.5-.5;this.vy=-Math.random()-0.5;this.s=Math.random()*1.5+1}update(){this.x+=this.vx;this.y+=this.vy;if(this.y<-20||this.x>width+20||this.x<-20)this.reset()}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,6.28);ctx.fillStyle='rgba(255,255,255,0.8)';ctx.fill();ctx.beginPath();ctx.moveTo(this.x,this.y);ctx.lineTo(this.x,this.y+this.s*5);ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=.5;ctx.stroke()}}
     class Ripple{constructor(x,y,auto){this.x=x;this.y=y;this.r=1;this.max=auto?Math.random()*30+20:100;this.a=1;this.speed=auto?.5:2}update(){this.r+=this.speed;this.a-=this.speed/this.max}draw(){if(this.a<=0)return;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,6.28);ctx.strokeStyle=`rgba(100,150,255,${this.a})`;ctx.lineWidth=1.5;ctx.stroke()}}
     class Star{constructor(){this.x=Math.random()*width;this.y=Math.random()*height;this.vx=(Math.random()-.5);this.vy=(Math.random()-.5)}update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>width)this.vx*=-1;if(this.y<0||this.y>height)this.vy*=-1}draw(d){ctx.beginPath();ctx.arc(this.x,this.y,1.5,0,6.28);ctx.fillStyle=d?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.5)';ctx.fill()}}
+    class Lightning{constructor(){this.reset()}reset(){this.t=Math.random()*150+50;this.l=0;this.p=[]}gen(){this.p=[];let x=Math.random()*width,y=0;this.p.push({x,y});while(y<height){x+=(Math.random()-.5)*150;y+=Math.random()*40+20;this.p.push({x,y})}this.l=15}update(){if(this.l>0)this.l--;else{this.t--;if(this.t<=0)this.gen()}}draw(d){if(this.l<=0)return;let a=this.l/15;ctx.fillStyle=d?`rgba(255,255,255,${a*.15})`:`rgba(0,0,0,${a*.1})`;ctx.fillRect(0,0,width,height);ctx.beginPath();ctx.moveTo(this.p[0].x,this.p[0].y);for(let i=1;i<this.p.length;i++)ctx.lineTo(this.p[i].x,this.p[i].y);ctx.strokeStyle=`rgba(200,220,255,${a})`;ctx.lineWidth=3;ctx.shadowBlur=20;ctx.shadowColor='#aaccff';ctx.stroke();ctx.shadowBlur=0}}
     let time=0;function drawGrid(d){time+=.01;ctx.strokeStyle=d?'rgba(0,255,255,0.3)':'rgba(0,150,255,0.3)';ctx.lineWidth=1;let cx=width/2,cy=height/2+100;for(let i=-10;i<=10;i++){ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+i*200,height);ctx.stroke()}for(let i=1;i<20;i++){let y=cy+Math.pow(i+(time%1),2)*2;if(y>height)continue;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke()}}
 
     function init() {
         resize();
+        lightning = new Lightning();
         for (let i = 0; i < 100; i++) drops.push(new Drop());
         for (let i = 0; i < 150; i++) snowflakes.push(new Snowflake());
         for (let i = 0; i < 50; i++) fireflies.push(new Firefly());
@@ -151,12 +154,16 @@ document.addEventListener("DOMContentLoaded", function() {
         const w = window.currentWeather;
         const isDark = document.documentElement.classList.contains('dark');
 
-        if (w === 'rain') {
+        if (w === 'rain' || w === 'lightning') {
             drops.forEach(d => { d.update(); d.draw(); });
             for (let i = splashes.length - 1; i >= 0; i--) {
                 splashes[i].update();
                 if (splashes[i].life <= 0) splashes.splice(i, 1);
                 else splashes[i].draw();
+            }
+            if (w === 'lightning') {
+                lightning.update();
+                lightning.draw(isDark);
             }
         } else if (w === 'snow') {
             snowflakes.forEach(f => { f.update(); f.draw(); });
