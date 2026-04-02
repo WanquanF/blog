@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let width, height;
     let drops = [];
     let splashes = [];
-    let mouseParticles = [];
+    let ripples = [];
     let mouse = { x: -1000, y: -1000 };
 
     function resize() {
@@ -26,20 +26,14 @@ document.addEventListener("DOMContentLoaded", function() {
     window.addEventListener('mousemove', (e) => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
-        // Generate mouse trail particles
-        for(let i = 0; i < 2; i++) {
-            mouseParticles.push(new MouseParticle(mouse.x, mouse.y));
-        }
     });
     window.addEventListener('mouseout', () => {
         mouse.x = -1000;
         mouse.y = -1000;
     });
     window.addEventListener('click', (e) => {
-        // Generate click explosion particles
-        for(let i = 0; i < 15; i++) {
-            mouseParticles.push(new MouseParticle(e.clientX, e.clientY));
-        }
+        // Generate a clean ripple effect on click
+        ripples.push(new Ripple(e.clientX, e.clientY));
     });
 
     class Drop {
@@ -112,33 +106,32 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    class MouseParticle {
+    class Ripple {
         constructor(x, y) {
             this.x = x;
             this.y = y;
-            this.speedX = (Math.random() - 0.5) * 3;
-            this.speedY = (Math.random() - 0.5) * 3;
+            this.radius = 0;
             this.life = 1;
-            this.decay = Math.random() * 0.03 + 0.02;
-            this.size = Math.random() * 2 + 1;
+            this.decay = 0.02; // Fades out slowly
             this.color = Math.random() > 0.5 ? '0, 77, 152' : '165, 0, 68';
         }
         update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
+            this.radius += 2; // Expands outward
             this.life -= this.decay;
         }
         draw() {
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${this.color}, ${this.life * 0.5})`;
-            ctx.fill();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${this.color}, ${this.life * 0.6})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
         }
     }
 
     function init() {
         resize();
-        for (let i = 0; i < 150; i++) {
+        // Reduced from 150 to 100 for a sparser, cleaner look
+        for (let i = 0; i < 100; i++) {
             drops.push(new Drop());
         }
         loop();
@@ -162,13 +155,13 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        for (let i = mouseParticles.length - 1; i >= 0; i--) {
-            let p = mouseParticles[i];
-            p.update();
-            if (p.life <= 0) {
-                mouseParticles.splice(i, 1);
+        for (let i = ripples.length - 1; i >= 0; i--) {
+            let r = ripples[i];
+            r.update();
+            if (r.life <= 0) {
+                ripples.splice(i, 1);
             } else {
-                p.draw();
+                r.draw();
             }
         }
         
