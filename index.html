@@ -63,14 +63,15 @@
     <script>
         function toggleLanguage() {
             const html = document.documentElement;
-            const currentLang = html.getAttribute('lang') || 'zh-CN';
+            const currentLang = html.getAttribute('lang') || 'en';
             const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
             html.setAttribute('lang', newLang);
             localStorage.setItem('blog-lang', newLang);
         }
         
         document.addEventListener("DOMContentLoaded", () => {
-            const savedLang = localStorage.getItem('blog-lang') || 'zh-CN';
+            // Default to 'en' if nothing is saved in localStorage
+            const savedLang = localStorage.getItem('blog-lang') || 'en';
             document.documentElement.setAttribute('lang', savedLang);
         });
     </script>
