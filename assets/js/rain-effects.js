@@ -12,9 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const ctx = canvas.getContext('2d');
     let width, height;
-    let drops = [];
-    let splashes = [];
-    let ripples = [];
+    let particles = [];
     let mouse = { x: -1000, y: -1000 };
 
     function resize() {
@@ -31,108 +29,41 @@ document.addEventListener("DOMContentLoaded", function() {
         mouse.x = -1000;
         mouse.y = -1000;
     });
-    window.addEventListener('click', (e) => {
-        // Generate a clean ripple effect on click
-        ripples.push(new Ripple(e.clientX, e.clientY));
-    });
 
-    class Drop {
+    class Particle {
         constructor() {
-            this.reset();
-            this.y = Math.random() * height;
-        }
-        reset() {
             this.x = Math.random() * width;
-            this.y = -10;
-            this.speed = Math.random() * 5 + 10;
-            this.length = Math.random() * 20 + 10;
-            this.thickness = Math.random() * 1.5 + 0.5;
+            this.y = Math.random() * height;
+            this.vx = (Math.random() - 0.5) * 0.4;
+            this.vy = (Math.random() - 0.5) * 0.4 - 0.2; // slight upward drift
+            this.radius = Math.random() * 2 + 0.5;
+            // Fresh colors: Sky Blue or Emerald Green
+            this.color = Math.random() > 0.5 ? '56, 189, 248' : '52, 211, 153';
         }
         update() {
-            this.y += this.speed;
-            
-            // Mouse interaction: push drops away
-            let dx = this.x - mouse.x;
-            let dy = this.y - mouse.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < 100) {
-                this.x += dx * 0.05;
-            }
+            this.x += this.vx;
+            this.y += this.vy;
 
-            if (this.y > height) {
-                this.splash();
-                this.reset();
-            }
-        }
-        splash() {
-            for(let i = 0; i < 3; i++) {
-                splashes.push(new Splash(this.x, height));
-            }
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x, this.y + this.length);
-            ctx.strokeStyle = `rgba(160, 160, 160, ${this.thickness * 0.25})`; // Gray rain
-            ctx.lineWidth = this.thickness;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-        }
-    }
-
-    class Splash {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            this.speedX = (Math.random() - 0.5) * 4;
-            this.speedY = -Math.random() * 3 - 2;
-            this.radius = Math.random() * 1.5 + 0.5;
-            this.life = 1;
-            this.decay = Math.random() * 0.05 + 0.02;
-            // Barça colors: Pale Blue (0, 77, 152) or Pale Red/Garnet (165, 0, 68)
-            this.color = Math.random() > 0.5 ? '0, 77, 152' : '165, 0, 68';
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.speedY += 0.2; // gravity
-            this.life -= this.decay;
+            // Wrap around to keep it seamless
+            if (this.x < -50) this.x = width + 50;
+            if (this.x > width + 50) this.x = -50;
+            if (this.y < -50) this.y = height + 50;
+            if (this.y > height + 50) this.y = -50;
         }
         draw() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${this.color}, ${this.life * 0.6})`;
+            ctx.fillStyle = `rgba(${this.color}, 0.5)`;
             ctx.fill();
-        }
-    }
-
-    class Ripple {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            this.radius = 0;
-            this.life = 1;
-            this.decay = 0.02; // Fades out slowly
-            this.color = Math.random() > 0.5 ? '0, 77, 152' : '165, 0, 68';
-        }
-        update() {
-            this.radius += 2; // Expands outward
-            this.life -= this.decay;
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(${this.color}, ${this.life * 0.6})`;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
         }
     }
 
     function init() {
         resize();
-        // Reduced from 150 to 100 for a sparser, cleaner look
-        for (let i = 0; i < 100; i++) {
-            drops.push(new Drop());
+        // Dynamic density based on screen size, very breathable
+        let particleCount = Math.floor((width * height) / 12000); 
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
         }
         loop();
     }
@@ -140,31 +71,45 @@ document.addEventListener("DOMContentLoaded", function() {
     function loop() {
         ctx.clearRect(0, 0, width, height);
         
-        drops.forEach(drop => {
-            drop.update();
-            drop.draw();
-        });
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+            
+            // Connect nearby particles with subtle lines
+            for (let j = i + 1; j < particles.length; j++) {
+                let dx = particles[i].x - particles[j].x;
+                let dy = particles[i].y - particles[j].y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist < 120) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(148, 163, 184, ${0.15 - dist/120 * 0.15})`; // Slate-400
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
 
-        for (let i = splashes.length - 1; i >= 0; i--) {
-            let s = splashes[i];
-            s.update();
-            if (s.life <= 0) {
-                splashes.splice(i, 1);
-            } else {
-                s.draw();
+            // Connect and interact with mouse
+            let dxMouse = particles[i].x - mouse.x;
+            let dyMouse = particles[i].y - mouse.y;
+            let distMouse = Math.sqrt(dxMouse*dxMouse + dyMouse*dyMouse);
+            
+            if (distMouse < 150) {
+                ctx.beginPath();
+                // Line to mouse gets slightly tinted
+                ctx.strokeStyle = `rgba(${particles[i].color}, ${0.3 - distMouse/150 * 0.3})`;
+                ctx.lineWidth = 1;
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(mouse.x, mouse.y);
+                ctx.stroke();
+                
+                // Mouse gently pushes them away (breathing room)
+                particles[i].x += dxMouse * 0.015;
+                particles[i].y += dyMouse * 0.015;
             }
         }
-
-        for (let i = ripples.length - 1; i >= 0; i--) {
-            let r = ripples[i];
-            r.update();
-            if (r.life <= 0) {
-                ripples.splice(i, 1);
-            } else {
-                r.draw();
-            }
-        }
-        
         requestAnimationFrame(loop);
     }
 
