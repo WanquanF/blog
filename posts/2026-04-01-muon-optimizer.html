@@ -10,17 +10,23 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
     <style>
+        html {
+            background-color: #eeeeee;
+        }
         body {
             background-color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
+            margin: 30px auto;
+            padding: 50px;
+            max-width: 960px;
+            min-height: calc(100vh - 60px);
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            display: block;
         }
         .content-container {
-            min-height: 100vh;
-            width: 56rem; /* Increased width for a more spacious feel */
+            min-height: auto;
+            width: auto;
             max-width: 100%;
-            padding: 4rem 2rem;
+            padding: 0;
             position: relative;
         }
         .prose-blue :where(a):not(:where([class~="not-prose"] *)) {
