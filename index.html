@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wanquan Feng | Blog</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <script src="assets/js/rain-effects.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #ffffff;
-            color: #1a1a1a;
             line-height: 1.6;
         }
         .serif {
@@ -59,6 +62,9 @@
             background-color: #e5e7eb;
             color: #111827;
         }
+        html.weather-sunny .icon-rain { display: none; }
+        html.weather-sunny .icon-sun { display: block; }
+        .icon-sun { display: none; }
     </style>
     <script>
         function toggleLanguage() {
@@ -68,41 +74,79 @@
             html.setAttribute('lang', newLang);
             localStorage.setItem('blog-lang', newLang);
         }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('blog-theme', isDark ? 'dark' : 'light');
+        }
+
+        function toggleWeather() {
+            const canvas = document.getElementById('rain-canvas');
+            if (canvas) {
+                const isHidden = canvas.style.display === 'none';
+                canvas.style.display = isHidden ? 'block' : 'none';
+                localStorage.setItem('blog-weather', isHidden ? 'rain' : 'sunny');
+                document.documentElement.classList.toggle('weather-sunny', !isHidden);
+            }
+        }
         
         document.addEventListener("DOMContentLoaded", () => {
             // Default to 'en' if nothing is saved in localStorage
             const savedLang = localStorage.getItem('blog-lang') || 'en';
             document.documentElement.setAttribute('lang', savedLang);
+
+            // Theme init
+            if (localStorage.getItem('blog-theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Weather init
+            const weather = localStorage.getItem('blog-weather');
+            if (weather === 'sunny') {
+                const canvas = document.getElementById('rain-canvas');
+                if (canvas) canvas.style.display = 'none';
+                document.documentElement.classList.add('weather-sunny');
+            }
         });
     </script>
 </head>
-<body class="max-w-6xl mx-auto px-6 py-12">
+<body class="max-w-6xl mx-auto px-6 py-12 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <header class="mb-16">
         <nav class="flex justify-between items-center mb-12">
             <div class="flex items-center gap-4">
-                <a href="index.html" class="text-xl font-bold tracking-tight">Wanquan Feng</a>
-                <button onclick="toggleLanguage()" class="lang-btn">
+                <a href="index.html" class="text-xl font-bold tracking-tight dark:text-white">Wanquan Feng</a>
+                <button onclick="toggleLanguage()" class="lang-btn dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                     <span class="lang-zh">Switch to English</span><span class="lang-en">切换为中文</span>
                 </button>
+                <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle Dark Mode">
+                    <svg class="w-5 h-5 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg class="w-5 h-5 block dark:hidden text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+                <button onclick="toggleWeather()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors weather-btn" title="Toggle Weather">
+                    <svg class="w-5 h-5 icon-rain text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-4-2v2m8-2v2"></path></svg>
+                    <svg class="w-5 h-5 icon-sun text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </button>
             </div>
-            <div class="flex items-center space-x-6 text-sm font-medium text-gray-600">
-                <a href="index.html" class="nav-link text-blue-600">
+            <div class="flex items-center space-x-6 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <a href="index.html" class="nav-link text-blue-600 dark:text-blue-400">
                     <span class="lang-en">Home</span><span class="lang-zh">首页</span>
                 </a>
             </div>
         </nav>
 
         <!-- Profile Head Section -->
-        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-16">
-            <img src="https://wanquanf.github.io/wanquan_files/touxiang.png" alt="Wanquan Feng" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-sm border-4 border-white flex-shrink-0">
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 mb-16 transition-colors duration-300">
+            <img src="https://wanquanf.github.io/wanquan_files/touxiang.png" alt="Wanquan Feng" class="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-sm border-4 border-white dark:border-gray-700 flex-shrink-0">
             <div class="space-y-3 flex-1 text-center sm:text-left w-full">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                     <div>
-                        <h1 class="text-2xl font-bold tracking-tight text-gray-900">Wanquan Feng</h1>
-                        <p class="text-sm font-medium text-emerald-600 mt-1">Researcher @ ByteDance Seed Team</p>
+                        <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Wanquan Feng</h1>
+                        <p class="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">Researcher @ ByteDance Seed Team</p>
                     </div>
                     <!-- The ONLY exit to main homepage -->
-                    <a href="https://wanquanf.github.io/" class="inline-flex items-center justify-center text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-full transition-colors self-center sm:self-start">
+                    <a href="https://wanquanf.github.io/" class="inline-flex items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 px-3 py-1.5 rounded-full transition-colors self-center sm:self-start">
                         <span class="lang-en">Main Profile &rarr;</span>
                         <span class="lang-zh">个人主页 &rarr;</span>
                     </a>
@@ -110,27 +154,27 @@
                 <div class="pt-1 pb-1">
                     <div class="flex items-center justify-center sm:justify-start gap-1.5 mb-2">
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        <span class="text-sm font-semibold text-gray-700">
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                             <span class="lang-en">Research Interests</span>
                             <span class="lang-zh">研究方向</span>
                         </span>
                     </div>
                     <div class="flex flex-wrap justify-center sm:justify-start gap-2 text-xs">
-                        <span class="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-600 shadow-sm hover:border-gray-300 hover:text-blue-600 transition-colors">
+                        <span class="px-2.5 py-1 rounded-md bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 shadow-sm hover:border-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             <span class="lang-en">Multimodal AI</span><span class="lang-zh">多模态 AI</span>
                         </span>
-                        <span class="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-600 shadow-sm hover:border-gray-300 hover:text-blue-600 transition-colors">
+                        <span class="px-2.5 py-1 rounded-md bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 shadow-sm hover:border-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             <span class="lang-en">LLM Mathematical Theory</span><span class="lang-zh">大模型数学理论</span>
                         </span>
-                        <span class="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-600 shadow-sm hover:border-gray-300 hover:text-blue-600 transition-colors">
+                        <span class="px-2.5 py-1 rounded-md bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 shadow-sm hover:border-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             <span class="lang-en">Network Architectures</span><span class="lang-zh">网络结构</span>
                         </span>
-                        <span class="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-gray-600 shadow-sm hover:border-gray-300 hover:text-blue-600 transition-colors">
+                        <span class="px-2.5 py-1 rounded-md bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 shadow-sm hover:border-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             <span class="lang-en">Training Optimization</span><span class="lang-zh">训练优化</span>
                         </span>
                     </div>
                 </div>
-                <p class="text-gray-400 text-xs italic bg-gray-100/50 inline-block px-2 py-1 rounded mt-1">
+                <p class="text-gray-400 dark:text-gray-500 text-xs italic bg-gray-100/50 dark:bg-gray-900/50 inline-block px-2 py-1 rounded mt-1">
                     <span class="lang-en">
                         All views expressed here are my personal opinions only and do not represent my employer. No confidential or proprietary company information disclosed.</span>
                     <span class="lang-zh">
@@ -144,7 +188,7 @@
             <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl">
                 <span class="lang-en">Blog</span><span class="lang-zh">博客</span>
             </h2>
-            <p class="text-lg text-gray-500 max-w-2xl">
+            <p class="text-lg text-gray-500 dark:text-gray-400 max-w-2xl">
                 <span class="lang-en">Welcome to my personal notebook.</span>
                 <span class="lang-zh">欢迎来到我的个人笔记。</span>
             </p>
@@ -152,10 +196,10 @@
     </header>
 
     <main class="space-y-8">
-        <article class="post-entry group border border-gray-100 rounded-2xl p-6 hover:bg-gray-50 hover:border-gray-200 hover:shadow-sm hover:-translate-y-1">
+        <article class="post-entry group border border-gray-100 dark:border-gray-800 rounded-2xl p-6 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm hover:-translate-y-1 transition-all duration-200">
             <a href="posts/2026-04-01-flow-grpo.html" class="block">
                 <header class="mb-2">
-                    <h2 class="post-title text-2xl font-bold tracking-tight text-gray-900 transition-colors">
+                    <h2 class="post-title text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100 transition-colors">
                         <span class="lang-zh">应用案例：Flow-GRPO</span>
                         <span class="lang-en">Use Case: Flow-GRPO</span>
                     </h2>
@@ -165,17 +209,17 @@
                         <span><span class="lang-zh">阅读约 5 分钟</span><span class="lang-en">5 min read</span></span>
                     </div>
                 </header>
-                <section class="text-gray-600 leading-relaxed mt-3">
+                <section class="text-gray-600 dark:text-gray-400 leading-relaxed mt-3">
                     <span class="lang-zh">在 Flow-GRPO 论文中，将 reverse 过程改造成 SDE 的简要分析。探讨采样过程中的随机性引入及其数学表达。</span>
                     <span class="lang-en">A brief analysis of transforming the reverse process into an SDE in the Flow-GRPO paper. Exploring the introduction of randomness during sampling and its mathematical expression.</span>
                 </section>
             </a>
         </article>
 
-        <article class="post-entry group border border-gray-100 rounded-2xl p-6 hover:bg-gray-50 hover:border-gray-200 hover:shadow-sm hover:-translate-y-1">
+        <article class="post-entry group border border-gray-100 dark:border-gray-800 rounded-2xl p-6 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm hover:-translate-y-1 transition-all duration-200">
             <a href="posts/2026-04-01-muon-optimizer.html" class="block">
                 <header class="mb-2">
-                    <h2 class="post-title text-2xl font-bold tracking-tight text-gray-900 transition-colors">
+                    <h2 class="post-title text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100 transition-colors">
                         <span class="lang-zh">Muon: 一个用于大模型隐藏层的优化器</span>
                         <span class="lang-en">Muon: An Optimizer for Hidden Layers in Large Models</span>
                     </h2>
@@ -185,7 +229,7 @@
                         <span><span class="lang-zh">阅读约 25 分钟</span><span class="lang-en">25 min read</span></span>
                     </div>
                 </header>
-                <section class="text-gray-600 leading-relaxed mt-3">
+                <section class="text-gray-600 dark:text-gray-400 leading-relaxed mt-3">
                     <span class="lang-zh">关于大模型隐藏层优化器 Muon 的一些笔记与思考。深入理解其优化机制及在训练大规模模型中的应用。</span>
                     <span class="lang-en">Notes and thoughts on Muon, an optimizer for hidden layers in large models. Deeply understanding its optimization mechanism and application in training large-scale models.</span>
                 </section>
