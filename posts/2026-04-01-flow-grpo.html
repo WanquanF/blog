@@ -16,42 +16,103 @@
         .nav-link { position: relative; padding-bottom: 2px; }
         .nav-link::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 0; background-color: #2563eb; transition: width 0.3s ease; }
         .nav-link:hover::after { width: 100%; }
+        
+        /* Language Toggle Styles */
+        html[lang="en"] .lang-zh { display: none !important; }
+        html[lang="zh-CN"] .lang-en { display: none !important; }
+        
+        .lang-btn {
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background-color: #f3f4f6;
+            color: #4b5563;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            background-color: #e5e7eb;
+            color: #111827;
+        }
     </style>
+    <script>
+        function toggleLanguage() {
+            const html = document.documentElement;
+            const currentLang = html.getAttribute('lang') || 'zh-CN';
+            const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
+            html.setAttribute('lang', newLang);
+            localStorage.setItem('blog-lang', newLang);
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedLang = localStorage.getItem('blog-lang') || 'zh-CN';
+            document.documentElement.setAttribute('lang', savedLang);
+        });
+    </script>
 </head>
 <body class="max-w-3xl mx-auto px-6 py-12">
     <header class="mb-12">
         <nav class="flex justify-between items-center mb-16">
-            <a href="../index.html" class="text-xl font-bold tracking-tight">Wanquan Feng</a>
-            <div class="space-x-6 text-sm font-medium text-gray-600">
-                <a href="https://wanquanf.github.io/" class="nav-link hover:text-blue-600">Home</a>
-                <a href="../index.html" class="nav-link text-blue-600">Blog</a>
-                <a href="https://wanquanf.github.io/#news" class="nav-link hover:text-blue-600">News</a>
+            <div class="flex items-center gap-4">
+                <a href="../index.html" class="text-xl font-bold tracking-tight">Wanquan Feng</a>
+                <button onclick="toggleLanguage()" class="lang-btn">
+                    <span class="lang-zh">English</span><span class="lang-en">切换为中文</span>
+                </button>
+            </div>
+            <div class="flex items-center space-x-6 text-sm font-medium text-gray-600">
+                <a href="https://wanquanf.github.io/" class="nav-link hover:text-blue-600">
+                    <span class="lang-en">Home</span><span class="lang-zh">首页</span>
+                </a>
+                <a href="../index.html" class="nav-link text-blue-600">
+                    <span class="lang-en">Blog</span><span class="lang-zh">博客</span>
+                </a>
+                <a href="https://wanquanf.github.io/#news" class="nav-link hover:text-blue-600">
+                    <span class="lang-en">News</span><span class="lang-zh">新闻</span>
+                </a>
             </div>
         </nav>
         <div class="space-y-4">
-            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">Muon: 一个用于大模型隐藏层的优化器</h1>
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+                <span class="lang-zh">应用案例：Flow-GRPO</span>
+                <span class="lang-en">Use Case: Flow-GRPO</span>
+            </h1>
             <div class="flex items-center gap-3 text-sm text-gray-500">
-                <time datetime="2026-04-01">April 1, 2026</time>
+                <time datetime="2026-04-01">
+                    <span class="lang-zh">2026年4月1日</span>
+                    <span class="lang-en">April 1, 2026</span>
+                </time>
                 <span>·</span>
-                <span>25 min read</span>
+                <span>
+                    <span class="lang-zh">阅读约 5 分钟</span>
+                    <span class="lang-en">5 min read</span>
+                </span>
             </div>
         </div>
     </header>
     <main>
         <article class="prose prose-slate prose-lg lg:prose-xl prose-blue">
-            <p>在 Flow-GRPO 论文中，采样想加入随机性，就必须得将 reverse 过程改造成 SDE。在原文中：</p>
-            <p>$$ \mathbf{f}_{SDE} = \mathbf{v} + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x}) $$</p>
-            <p>非常简单可以看出来这就是上面我们将 ODE 转 SDE 的简化形式，其中 $\mathbf{G}(\mathbf{x}, t) = \delta_t$。</p>
-            <p>以这样的视角来看，很快就理解了。</p>
+            <div class="lang-zh">
+                <p>在 Flow-GRPO 论文中，采样想加入随机性，就必须得将 reverse 过程改造成 SDE。在原文中：</p>
+                <div class="my-8">$ \mathbf{f}_{SDE} = \mathbf{v} + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x}) $</div>
+                <p>非常简单可以看出来这就是上面我们将 ODE 转 SDE 的简化形式，其中 $\mathbf{G}(\mathbf{x}, t) = \delta_t$。</p>
+                <p>以这样的视角来看，很快就理解了。</p>
+            </div>
+            <div class="lang-en">
+                <p>In the Flow-GRPO paper, if we want to introduce randomness into the sampling process, we must transform the reverse process into an SDE. In the original text:</p>
+                <div class="my-8">$ \mathbf{f}_{SDE} = \mathbf{v} + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x}) $</div>
+                <p>It is very easy to see that this is simply the simplified form of converting ODE to SDE as mentioned above, where $\mathbf{G}(\mathbf{x}, t) = \delta_t$.</p>
+                <p>From this perspective, it becomes very quick to understand.</p>
+            </div>
         </article>
     </main>
     <footer class="mt-24 pt-12 border-t border-gray-100">
         <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-400">
-            <p>&copy; 2026 Wanquan Feng.</p>
+            <p>&copy; 2026 Wanquan Feng. <span class="lang-en">All rights reserved.</span><span class="lang-zh">保留所有权利。</span></p>
             <div class="flex space-x-6">
-                <a href="https://scholar.google.com/citations?user=na2akZYAAAAJ" class="hover:text-gray-600">Scholar</a>
+                <a href="https://scholar.google.com/citations?user=na2akZYAAAAJ" class="hover:text-gray-600"><span class="lang-en">Scholar</span><span class="lang-zh">学术主页</span></a>
                 <a href="https://github.com/wanquanf" class="hover:text-gray-600">GitHub</a>
-                <a href="https://www.zhihu.com/people/xuanya2017" class="hover:text-gray-600">Zhihu</a>
+                <a href="https://www.zhihu.com/people/xuanya2017" class="hover:text-gray-600"><span class="lang-en">Zhihu</span><span class="lang-zh">知乎</span></a>
             </div>
         </div>
     </footer>
