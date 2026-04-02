@@ -12,81 +12,101 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const ctx = canvas.getContext('2d');
     let width, height;
-    let points = [];
-    const spacing = 35; // Distance between grid points
-    let mouse = { x: -1000, y: -1000 };
+    let drops = [];
+    let splashes = [];
 
     function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
-        initGrid();
     }
 
     window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-    });
-    window.addEventListener('mouseout', () => {
-        mouse.x = -1000;
-        mouse.y = -1000;
-    });
 
-    function initGrid() {
-        points = [];
-        for (let x = 0; x < width + spacing; x += spacing) {
-            for (let y = 0; y < height + spacing; y += spacing) {
-                points.push({
-                    baseX: x,
-                    baseY: y,
-                    x: x,
-                    y: y
-                });
+    class Drop {
+        constructor() {
+            this.reset();
+            this.y = Math.random() * height;
+        }
+        reset() {
+            this.x = Math.random() * width;
+            this.y = -10;
+            this.speed = Math.random() * 5 + 10;
+            this.length = Math.random() * 20 + 10;
+            this.thickness = Math.random() * 1.5 + 0.5;
+        }
+        update() {
+            this.y += this.speed;
+
+            if (this.y > height) {
+                this.splash();
+                this.reset();
             }
+        }
+        splash() {
+            for(let i = 0; i < 3; i++) {
+                splashes.push(new Splash(this.x, height));
+            }
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x, this.y + this.length);
+            ctx.strokeStyle = `rgba(160, 160, 160, ${this.thickness * 0.25})`; // Subtle gray rain
+            ctx.lineWidth = this.thickness;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+    }
+
+    class Splash {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.speedX = (Math.random() - 0.5) * 4;
+            this.speedY = -Math.random() * 3 - 2;
+            this.radius = Math.random() * 1.5 + 0.5;
+            this.life = 1;
+            this.decay = Math.random() * 0.05 + 0.02;
+            this.color = Math.random() > 0.5 ? '0, 77, 152' : '165, 0, 68'; // Barca colors for splashes
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.speedY += 0.2; // gravity
+            this.life -= this.decay;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${this.color}, ${this.life * 0.6})`;
+            ctx.fill();
         }
     }
 
     function init() {
         resize();
+        for (let i = 0; i < 100; i++) {
+            drops.push(new Drop());
+        }
         loop();
     }
 
     function loop() {
         ctx.clearRect(0, 0, width, height);
         
-        for (let i = 0; i < points.length; i++) {
-            let p = points[i];
-            
-            let dx = p.baseX - mouse.x;
-            let dy = p.baseY - mouse.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            
-            let targetX = p.baseX;
-            let targetY = p.baseY;
-            let radius = 1.2;
+        drops.forEach(drop => {
+            drop.update();
+            drop.draw();
+        });
 
-            // Interactive distortion field
-            if (dist < 150) {
-                let force = (150 - dist) / 150;
-                // Move points away from mouse slightly to create a 3D lens effect
-                targetX += (dx / dist) * force * 15;
-                targetY += (dy / dist) * force * 15;
-                // Grow slightly
-                radius = 1.2 + force * 1.5;
-                // Shift color to a subtle tech blue
-                ctx.fillStyle = `rgba(37, 99, 235, ${0.15 + force * 0.25})`; 
+        for (let i = splashes.length - 1; i >= 0; i--) {
+            let s = splashes[i];
+            s.update();
+            if (s.life <= 0) {
+                splashes.splice(i, 1);
             } else {
-                // Default subtle slate gray
-                ctx.fillStyle = 'rgba(100, 116, 139, 0.15)';
+                s.draw();
             }
-
-            // Smooth easing towards target position
-            p.x += (targetX - p.x) * 0.1;
-            p.y += (targetY - p.y) * 0.1;
-
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-            ctx.fill();
         }
         
         requestAnimationFrame(loop);
