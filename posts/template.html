@@ -3,71 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ TITLE }} | WanquanF</title>
-    <!-- 使用 Tailwind Typography 插件自动处理文章样式 -->
+    <title>{{ TITLE }} | Wanquan Feng</title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    <script src="../assets/js/rain-effects.js"></script>
-    <!-- KaTeX 数学公式支持 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <!-- KaTeX Support -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
     <style>
-        html {
-            background-color: #eeeeee;
-        }
         body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #ffffff;
-            margin: 30px auto;
-            padding: 10px 50px 30px 50px;
-            max-width: 960px;
-            min-height: calc(100vh - 60px);
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            display: block;
-            box-sizing: border-box;
+            color: #1a1a1a;
         }
-        .content-container {
-            min-height: auto;
-            width: auto;
+        .prose {
+            font-family: 'Merriweather', Georgia, serif;
             max-width: 100%;
-            padding: 0;
+        }
+        .prose h1, .prose h2, .prose h3, .prose h4 {
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.025em;
+        }
+        .prose code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            background-color: #f3f4f6;
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+        }
+        .prose pre {
+            background-color: #1a1a1a !important;
+            border-radius: 0.5rem;
+        }
+        .nav-link {
             position: relative;
+            padding-bottom: 2px;
         }
-        .prose-blue :where(a):not(:where([class~="not-prose"] *)) {
-            color: #004d98;
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: 0;
+            left: 0;
+            background-color: #2563eb;
+            transition: width 0.3s ease;
         }
-        .text-blue-600 { color: #004d98; }
-        .hover\:text-blue-800:hover { color: #003366; }
+        .nav-link:hover::after {
+            width: 100%;
+        }
     </style>
 </head>
-<body class="text-slate-900">
-    <div class="content-container">
-        <nav class="mb-12">
-            <a href="../index.html" class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                返回首页
-            </a>
+<body class="max-w-3xl mx-auto px-6 py-12">
+    <header class="mb-12">
+        <nav class="flex justify-between items-center mb-16">
+            <a href="../index.html" class="text-xl font-bold tracking-tight">Wanquan Feng</a>
+            <div class="space-x-6 text-sm font-medium text-gray-600">
+                <a href="https://wanquanf.github.io/" class="nav-link hover:text-blue-600">Home</a>
+                <a href="../index.html" class="nav-link text-blue-600">Blog</a>
+                <a href="https://wanquanf.github.io/#news" class="nav-link hover:text-blue-600">News</a>
+            </div>
         </nav>
         
-        <header class="mb-12">
-            <h1 class="text-[2.5rem] font-bold tracking-tight mb-4">{{ TITLE }}</h1>
-            <div class="flex items-center gap-4 text-slate-500 text-sm">
+        <div class="space-y-4">
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 leading-tight sm:text-5xl">
+                {{ TITLE }}
+            </h1>
+            <div class="flex items-center gap-3 text-sm text-gray-500">
                 <time datetime="{{ DATE }}">{{ DATE_DISPLAY }}</time>
                 <span>·</span>
-                <span>阅读时间约 {{ READ_TIME }} 分钟</span>
+                <span>{{ READ_TIME }} min read</span>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- 文章正文 -->
-        <article class="prose prose-slate prose-blue mx-auto">
+    <main>
+        <article class="prose prose-slate prose-lg lg:prose-xl prose-blue">
             {{ CONTENT }}
         </article>
+    </main>
 
-        <footer class="mt-24 text-center text-slate-400 text-sm">
-            &copy; 2026 WanquanF.
-        </footer>
-    </div>
+    <footer class="mt-24 pt-12 border-t border-gray-100">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-400">
+            <p>&copy; 2026 Wanquan Feng.</p>
+            <div class="flex space-x-6">
+                <a href="https://scholar.google.com/citations?user=na2akZYAAAAJ" class="hover:text-gray-600">Scholar</a>
+                <a href="https://github.com/wanquanf" class="hover:text-gray-600">GitHub</a>
+                <a href="https://www.zhihu.com/people/xuanya2017" class="hover:text-gray-600">Zhihu</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {

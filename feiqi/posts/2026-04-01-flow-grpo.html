@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用案例：Flow-GRPO | WanquanF</title>
+    <!-- 使用 Tailwind Typography 插件自动处理文章样式 -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script src="../assets/js/rain-effects.js"></script>
+    <!-- KaTeX 数学公式支持 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
+    <style>
+        html {
+            background-color: #eeeeee;
+        }
+        body {
+            background-color: #ffffff;
+            margin: 30px auto;
+            padding: 10px 50px 30px 50px;
+            max-width: 960px;
+            min-height: calc(100vh - 60px);
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            display: block;
+            box-sizing: border-box;
+        }
+        .content-container {
+            min-height: auto;
+            width: auto;
+            max-width: 100%;
+            padding: 0;
+            position: relative;
+        }
+        .prose-blue :where(a):not(:where([class~="not-prose"] *)) {
+            color: #004d98;
+        }
+        .text-blue-600 { color: #004d98; }
+        .hover\:text-blue-800:hover { color: #003366; }
+    </style>
+</head>
+<body class="text-slate-900">
+    <div class="content-container">
+        <nav class="mb-12">
+            <a href="../index.html" class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                返回首页
+            </a>
+        </nav>
+        
+        <header class="mb-12">
+            <h1 class="text-[2.5rem] font-bold tracking-tight mb-4">应用案例：Flow-GRPO</h1>
+            <div class="flex items-center gap-4 text-slate-500 text-sm">
+                <time datetime="2026-04-01">2026 年 4 月 1 日</time>
+                <span>·</span>
+                <span>阅读时间约 5 分钟</span>
+            </div>
+        </header>
+
+        <!-- 文章正文 -->
+        <article class="prose prose-slate prose-blue mx-auto">
+            <p>在 Flow-GRPO 论文中，采样想加入随机性，就必须得将 reverse 过程改造成 SDE。在原文中：</p>
+            
+            <div class="my-8">
+                $$ \mathbf{f}_{SDE} = \mathbf{v} + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x}) $$
+            </div>
+
+            <p>非常简单可以看出来这就是上面我们将 ODE 转 SDE 的简化形式，其中 $\mathbf{G}(\mathbf{x}, t) = \delta_t$。</p>
+            <p>以这样的视角来看，很快就理解了。</p>
+        </article>
+
+        <footer class="mt-24 text-center text-slate-400 text-sm">
+            &copy; 2026 WanquanF.
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
