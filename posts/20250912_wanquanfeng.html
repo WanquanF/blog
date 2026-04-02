@@ -264,6 +264,25 @@
                     <li>... ... 当然还有很多的现代的知识，比如 DDPM、DDIM、Flow Matching，这些就是我们这个年代的了。</li>
                 </ul>
                 <p>后面我们一点点展开来看吧。</p>
+
+                <h2>Forward SDE（正向 modeling）</h2>
+                <p>一般我们研究的方程是这样的形式：</p>
+                <p class="text-center">$$d\mathbf{x} = \mathbf{f}(\mathbf{x},t)dt + \mathbf{G}(\mathbf{x},t)d\mathbf{w}$$</p>
+                <p>其中 $\mathbf{w}$ 是<a href="https://zh.wikipedia.org/wiki/%E7%BB%B4%E7%BA%B3%E8%BF%87%E7%A8%8B" target="_blank">维纳过程</a>，$\mathbf{f}: \mathbb{R}^N \times [0, T] \to \mathbb{R}^N$，$\mathbf{G}: \mathbb{R}^N \times [0, T] \to \mathbb{R}^{N \times N}$。注意 $\mathbf{x}$ 也是关于 $t$ 变化的，是一个连续的随机变量序列 $\mathbf{x}(t)$，或者记为 $\mathbf{x}_t$，为了方便，通常就写成 $\mathbf{x}$ 就好。通常，在 $t \in [0, T]$ 的区间两端点上，$\mathbf{x}_0 \sim p_0(\mathbf{x}) = p_{data}(\mathbf{x})$ 和 $\mathbf{x}_T \sim p_T(\mathbf{x})$ 分别是样本分布和纯噪声分布（有些 paper 记号不是这样的，比如 Flow Matching，但是我们在本文档语境下就强行统一记号吧）</p>
+                
+                <p>将研究对象定位为这个形式的依据：</p>
+                <ol>
+                    <li>在 Evans Page 77 关于 SDE 的定义是这个形式</li>
+                    <li>在 经典论文 Reverse SDE (1982) 的 Eq-3.3 关于 SDE 的定义也是这个形式</li>
+                </ol>
+                
+                <p>所以，尽管常见的关于扩散模型的理论都采用了更简单的形式，比如 $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + g(t)d\mathbf{w}$，甚至 $d\mathbf{x} = \mathbf{v}(\mathbf{x}, t)dt$，我们还是研究一种更通用的形式。这乍一看是变麻烦了，但实则是变简单了，可以方便从经典的推断中借鉴我们需要的手法。</p>
+
+                <h2>边缘分布：Fokker-Planck 方程</h2>
+                <p>随机微分方程 $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ 描述了随机变量 $\mathbf{x}$ 关于时间 $t$ 的关系。我们先介绍一个经典方程，称作 Fokker-Planck 方程。假设 $\mathbf{x}(t)$ 的概率密度函数为 $p_t(\mathbf{x})$，这通常称作 <strong>边缘密度</strong> (marginal density)。那么由上述 SDE 引导出的关于边缘密度 $p_t(\mathbf{x})$ 的方程为：</p>
+                <p class="text-center">$$\frac{\partial p}{\partial t} = -\nabla \cdot [\mathbf{f}(\mathbf{x}, t)p(\mathbf{x}, t)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T p(\mathbf{x}, t))]$$</p>
+                <p>这个方程就叫做 Fokker-Planck 方程。</p>
+                <p>这个化归的意义在于，把随机变量 $\mathbf{x}_t$ 随时间的演变，转化成边缘密度 $p_t$ 随时间的演变。为什么要做这个转变呢？因为我们通常采样都是以随机变量的形式，但是背后的数学原理很多是以概率密度函数的形式来进行描述。所以这个转变是必要的。</p>
             </div>
             
             <div class="lang-en">
@@ -301,6 +320,25 @@
                     <li>... ... Of course, there is also a lot of modern knowledge, such as DDPM, DDIM, and Flow Matching, which belong to our era.</li>
                 </ul>
                 <p>Let's unfold these bit by bit later.</p>
+
+                <h2>Forward SDE (Forward Modeling)</h2>
+                <p>Generally, the equation we study takes the following form:</p>
+                <p class="text-center">$$d\mathbf{x} = \mathbf{f}(\mathbf{x},t)dt + \mathbf{G}(\mathbf{x},t)d\mathbf{w}$$</p>
+                <p>where $\mathbf{w}$ is the <a href="https://en.wikipedia.org/wiki/Wiener_process" target="_blank">Wiener process</a>, $\mathbf{f}: \mathbb{R}^N \times [0, T] \to \mathbb{R}^N$, and $\mathbf{G}: \mathbb{R}^N \times [0, T] \to \mathbb{R}^{N \times N}$. Note that $\mathbf{x}$ also varies with $t$, forming a continuous sequence of random variables $\mathbf{x}(t)$, or denoted as $\mathbf{x}_t$. For convenience, it is usually just written as $\mathbf{x}$. Typically, at the two endpoints of the interval $t \in [0, T]$, $\mathbf{x}_0 \sim p_0(\mathbf{x}) = p_{data}(\mathbf{x})$ and $\mathbf{x}_T \sim p_T(\mathbf{x})$ are the sample distribution and the pure noise distribution, respectively. (Some papers use different notations, such as Flow Matching, but we will forcefully unify the notation in the context of this document.)</p>
+                
+                <p>The basis for targeting this form as our research object:</p>
+                <ol>
+                    <li>The definition of SDE on Page 77 of Evans takes this form.</li>
+                    <li>The definition of SDE in Eq-3.3 of the classic paper Reverse SDE (1982) also takes this form.</li>
+                </ol>
+                
+                <p>Therefore, although common theories on diffusion models adopt simpler forms, such as $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + g(t)d\mathbf{w}$, or even $d\mathbf{x} = \mathbf{v}(\mathbf{x}, t)dt$, we still study a more general form. This might seem more complicated at first glance, but it actually simplifies things, allowing us to easily borrow necessary techniques from classic derivations.</p>
+
+                <h2>Marginal Distribution: Fokker-Planck Equation</h2>
+                <p>The stochastic differential equation $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ describes the relationship of the random variable $\mathbf{x}$ with respect to time $t$. We first introduce a classic equation called the Fokker-Planck equation. Suppose the probability density function of $\mathbf{x}(t)$ is $p_t(\mathbf{x})$, which is usually called the <strong>marginal density</strong>. Then the equation for the marginal density $p_t(\mathbf{x})$ induced by the above SDE is:</p>
+                <p class="text-center">$$\frac{\partial p}{\partial t} = -\nabla \cdot [\mathbf{f}(\mathbf{x}, t)p(\mathbf{x}, t)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T p(\mathbf{x}, t))]$$</p>
+                <p>This equation is called the Fokker-Planck equation.</p>
+                <p>The significance of this reduction is to transform the evolution of the random variable $\mathbf{x}_t$ over time into the evolution of the marginal density $p_t$ over time. Why make this transformation? Because we usually sample in the form of random variables, but the underlying mathematical principles are mostly described in the form of probability density functions. Therefore, this transformation is necessary.</p>
             </div>
         </article>
     </main>
