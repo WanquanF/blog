@@ -16,20 +16,7 @@
 ## 2. 核心架构与技术栈 (Tech Stack)
 * **CSS 框架**: Tailwind CSS (通过 CDN `https://cdn.tailwindcss.com` 引入)，正文排版使用 `@tailwindcss/typography` 插件（即 `<article class="prose ...">`）。
 * **状态管理**: 使用 `LocalStorage` 纯前端持久化管理多语言 (`lang`)、黑夜模式 (`theme`) 和天气特效 (`weather`)。默认状态为“黑夜模式 + 星空连线”。
-* **数学公式**: 使用 `KaTeX` (CDN 引入，自动渲染 `$ ... # Wanquan Feng's Blog - 维护准则与开发指南 (Developer & AI Guide)
-
-> **致未来的 AI 助手 (To future LLMs/VLMs):** 
-> 当你接手这个项目并协助添加新功能或新文章时，**请务必严格遵守本文档中的所有规范**。这个博客追求极致的学术极简风（Lilian Weng 风格），拒绝花哨的框架，采用纯静态、无构建工具的架构。
-
----
-
-## 1. 核心设计哲学 (Design Philosophy)
-* **极简学术风 (Minimalist & Academic)**：高对比度、留白充足。
-* **纯静态、零构建 (Zero Build Process)**：直接使用 HTML/JS/CSS，通过 CDN 引入 Tailwind CSS。不需要 Webpack/Vite 等构建工具。
-* **排版至上 (Typography First)**：
-  * UI、导航、标题：使用 `Inter` (无衬线体，现代感)。
-  * 正文、长篇阅读：使用 `Merriweather` (衬线体，学术纸质感)。
- 和 `$ ... $`)。
+* **数学公式**: 使用 `KaTeX` (CDN 引入)。**注意：** 必须在页面的 `<script>` 中使用 `renderMathInElement` 初始化自动渲染，并配置好对应的定界符 (delimiters)，例如块级公式 `$$...$$` 和行内公式 `$...$` 等，否则页面上的 LaTeX 公式将无法被解析和渲染。
 * **图标/字体**: Google Fonts (Inter, Merriweather)。
 
 ## 3. 🚨 核心准则：中英双语无缝切换 (The Bilingual System)
@@ -63,6 +50,10 @@
 </article>
 ```
 **注意：绝对不要在页面间使用跳转来切换语言。切换逻辑完全由 `html[lang="..."]` 属性和 CSS 控制。**
+
+### 3.3 数学相关内容的翻译准则 (Translation Guidelines for Math Content)
+在编写博客时，我们经常会从截图去提取或输入“中文+数学”的内容。当我们将这些内容翻译成英文时，**必须要像一本通顺的数学教材一样**。
+这要求我们在翻译时必须采用**意译 (Free Translation)** 而不是生硬的直译 (Literal Translation)，确保学术表达的地道与自然，使读者在阅读英文推导和公式说明时毫无违和感。
 
 ## 4. 如何创建一篇新博客 (How to add a new post)
 
