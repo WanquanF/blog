@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>应用案例：Flow-GRPO | Wanquan Feng</title>
+    <title>Muon: 一个用于大模型隐藏层的优化器 | Wanquan Feng</title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
@@ -28,18 +28,18 @@
             </div>
         </nav>
         <div class="space-y-4">
-            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">应用案例：Flow-GRPO</h1>
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">Muon: 一个用于大模型隐藏层的优化器</h1>
             <div class="flex items-center gap-3 text-sm text-gray-500">
                 <time datetime="2026-04-01">April 1, 2026</time>
                 <span>·</span>
-                <span>5 min read</span>
+                <span>25 min read</span>
             </div>
         </div>
     </header>
     <main>
         <article class="prose prose-slate prose-lg lg:prose-xl prose-blue">
             <p>在 Flow-GRPO 论文中，采样想加入随机性，就必须得将 reverse 过程改造成 SDE。在原文中：</p>
-            <div class="my-8">$$ \mathbf{f}_{SDE} = \mathbf{v} + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x}) $$</div>
+            <p>$$ \mathbf{f}_{SDE} = \mathbf{v} + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x}) $$</p>
             <p>非常简单可以看出来这就是上面我们将 ODE 转 SDE 的简化形式，其中 $\mathbf{G}(\mathbf{x}, t) = \delta_t$。</p>
             <p>以这样的视角来看，很快就理解了。</p>
         </article>
