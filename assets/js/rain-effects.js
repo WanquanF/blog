@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let width, height;
     let drops = [];
     let splashes = [];
+    let mouseParticles = [];
     let mouse = { x: -1000, y: -1000 };
 
     function resize() {
@@ -25,10 +26,20 @@ document.addEventListener("DOMContentLoaded", function() {
     window.addEventListener('mousemove', (e) => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
+        // Generate mouse trail particles
+        for(let i = 0; i < 2; i++) {
+            mouseParticles.push(new MouseParticle(mouse.x, mouse.y));
+        }
     });
     window.addEventListener('mouseout', () => {
         mouse.x = -1000;
         mouse.y = -1000;
+    });
+    window.addEventListener('click', (e) => {
+        // Generate click explosion particles
+        for(let i = 0; i < 15; i++) {
+            mouseParticles.push(new MouseParticle(e.clientX, e.clientY));
+        }
     });
 
     class Drop {
@@ -68,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(this.x, this.y + this.length);
-            ctx.strokeStyle = `rgba(37, 99, 235, ${this.thickness * 0.2})`; // Match Tailwind blue-600 with opacity
+            ctx.strokeStyle = `rgba(160, 160, 160, ${this.thickness * 0.25})`; // Gray rain
             ctx.lineWidth = this.thickness;
             ctx.lineCap = 'round';
             ctx.stroke();
@@ -84,6 +95,8 @@ document.addEventListener("DOMContentLoaded", function() {
             this.radius = Math.random() * 1.5 + 0.5;
             this.life = 1;
             this.decay = Math.random() * 0.05 + 0.02;
+            // Barça colors: Pale Blue (0, 77, 152) or Pale Red/Garnet (165, 0, 68)
+            this.color = Math.random() > 0.5 ? '0, 77, 152' : '165, 0, 68';
         }
         update() {
             this.x += this.speedX;
@@ -94,7 +107,31 @@ document.addEventListener("DOMContentLoaded", function() {
         draw() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(37, 99, 235, ${this.life * 0.5})`;
+            ctx.fillStyle = `rgba(${this.color}, ${this.life * 0.6})`;
+            ctx.fill();
+        }
+    }
+
+    class MouseParticle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.speedX = (Math.random() - 0.5) * 3;
+            this.speedY = (Math.random() - 0.5) * 3;
+            this.life = 1;
+            this.decay = Math.random() * 0.03 + 0.02;
+            this.size = Math.random() * 2 + 1;
+            this.color = Math.random() > 0.5 ? '0, 77, 152' : '165, 0, 68';
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.life -= this.decay;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${this.color}, ${this.life * 0.5})`;
             ctx.fill();
         }
     }
@@ -122,6 +159,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 splashes.splice(i, 1);
             } else {
                 s.draw();
+            }
+        }
+
+        for (let i = mouseParticles.length - 1; i >= 0; i--) {
+            let p = mouseParticles[i];
+            p.update();
+            if (p.life <= 0) {
+                mouseParticles.splice(i, 1);
+            } else {
+                p.draw();
             }
         }
         
