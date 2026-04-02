@@ -9,15 +9,15 @@
 * **极简学术风 (Minimalist & Academic)**：参考 Lilian Weng 博客风格。高对比度、留白充足。
 * **纯静态、零构建 (Zero Build Process)**：直接使用 HTML/JS/CSS，通过 CDN 引入 Tailwind CSS。不需要 Webpack/Vite 等构建工具。
 * **排版至上 (Typography First)**：
-  * UI、导航、标题：使用 `Inter` (无衬线体，现代感)。
-  * 正文、长篇阅读：使用 `Merriweather` (衬线体，学术纸质感)。
+  * 英文：统一使用 `Times New Roman`。
+  * 中文：回退至系统默认无衬线体 (`-apple-system`, `BlinkMacSystemFont` 等，即主页中文字体)。
 * **优雅的视觉系统 (Elegant Visuals)**：底层自带黑夜/白天模式切换，同时拥有一个多状态的 Canvas 魔法特效引擎 (`rain-effects.js`)。支持多种特效：星空连线、雨天、雪天、萤火虫、樱花飞舞、微风蒲公英、互动水波纹、赛博网格。特效要求克制、优雅，并能根据黑夜/白天模式自动适配颜色。
 
 ## 2. 核心架构与技术栈 (Tech Stack)
 * **CSS 框架**: Tailwind CSS (通过 CDN `https://cdn.tailwindcss.com` 引入)，正文排版使用 `@tailwindcss/typography` 插件（即 `<article class="prose ...">`）。
 * **状态管理**: 使用 `LocalStorage` 纯前端持久化管理多语言 (`lang`)、黑夜模式 (`theme`) 和天气特效 (`weather`)。默认状态为“黑夜模式 + 星空连线”。
 * **数学公式**: 使用 `KaTeX` (CDN 引入)。**注意：** 必须在页面的 `<script>` 中使用 `renderMathInElement` 初始化自动渲染，并配置好对应的定界符 (delimiters)，例如块级公式 `$$...$$` 和行内公式 `$...$` 等，否则页面上的 LaTeX 公式将无法被解析和渲染。
-* **图标/字体**: Google Fonts (Inter, Merriweather)。
+* **图标/字体**: 字体为系统自带 (英文为 Times New Roman，中文为系统默认)。
 
 ## 3. 🚨 核心准则：中英双语无缝切换 (The Bilingual System)
 本博客采用**纯前端 DOM 切换 + LocalStorage 记忆**的双语方案。默认语言为英文 (`en`)。
