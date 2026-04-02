@@ -12,12 +12,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const ctx = canvas.getContext('2d');
     let width, height;
-    let particles = [];
+    let points = [];
+    const spacing = 35; // Distance between grid points
     let mouse = { x: -1000, y: -1000 };
 
     function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
+        initGrid();
     }
 
     window.addEventListener('resize', resize);
@@ -30,86 +32,63 @@ document.addEventListener("DOMContentLoaded", function() {
         mouse.y = -1000;
     });
 
-    class Particle {
-        constructor() {
-            this.x = Math.random() * width;
-            this.y = Math.random() * height;
-            this.vx = (Math.random() - 0.5) * 0.4;
-            this.vy = (Math.random() - 0.5) * 0.4 - 0.2; // slight upward drift
-            this.radius = Math.random() * 2 + 0.5;
-            // Fresh colors: Sky Blue or Emerald Green
-            this.color = Math.random() > 0.5 ? '56, 189, 248' : '52, 211, 153';
-        }
-        update() {
-            this.x += this.vx;
-            this.y += this.vy;
-
-            // Wrap around to keep it seamless
-            if (this.x < -50) this.x = width + 50;
-            if (this.x > width + 50) this.x = -50;
-            if (this.y < -50) this.y = height + 50;
-            if (this.y > height + 50) this.y = -50;
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${this.color}, 0.5)`;
-            ctx.fill();
+    function initGrid() {
+        points = [];
+        for (let x = 0; x < width + spacing; x += spacing) {
+            for (let y = 0; y < height + spacing; y += spacing) {
+                points.push({
+                    baseX: x,
+                    baseY: y,
+                    x: x,
+                    y: y
+                });
+            }
         }
     }
 
     function init() {
         resize();
-        // Dynamic density based on screen size, very breathable
-        let particleCount = Math.floor((width * height) / 12000); 
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
-        }
         loop();
     }
 
     function loop() {
         ctx.clearRect(0, 0, width, height);
         
-        for (let i = 0; i < particles.length; i++) {
-            particles[i].update();
-            particles[i].draw();
+        for (let i = 0; i < points.length; i++) {
+            let p = points[i];
             
-            // Connect nearby particles with subtle lines
-            for (let j = i + 1; j < particles.length; j++) {
-                let dx = particles[i].x - particles[j].x;
-                let dy = particles[i].y - particles[j].y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                
-                if (dist < 120) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(148, 163, 184, ${0.15 - dist/120 * 0.15})`; // Slate-400
-                    ctx.lineWidth = 0.5;
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.stroke();
-                }
+            let dx = p.baseX - mouse.x;
+            let dy = p.baseY - mouse.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            
+            let targetX = p.baseX;
+            let targetY = p.baseY;
+            let radius = 1.2;
+
+            // Interactive distortion field
+            if (dist < 150) {
+                let force = (150 - dist) / 150;
+                // Move points away from mouse slightly to create a 3D lens effect
+                targetX += (dx / dist) * force * 15;
+                targetY += (dy / dist) * force * 15;
+                // Grow slightly
+                radius = 1.2 + force * 1.5;
+                // Shift color to a subtle tech blue
+                ctx.fillStyle = `rgba(37, 99, 235, ${0.15 + force * 0.25})`; 
+            } else {
+                // Default subtle slate gray
+                ctx.fillStyle = 'rgba(100, 116, 139, 0.15)';
             }
 
-            // Connect and interact with mouse
-            let dxMouse = particles[i].x - mouse.x;
-            let dyMouse = particles[i].y - mouse.y;
-            let distMouse = Math.sqrt(dxMouse*dxMouse + dyMouse*dyMouse);
-            
-            if (distMouse < 150) {
-                ctx.beginPath();
-                // Line to mouse gets slightly tinted
-                ctx.strokeStyle = `rgba(${particles[i].color}, ${0.3 - distMouse/150 * 0.3})`;
-                ctx.lineWidth = 1;
-                ctx.moveTo(particles[i].x, particles[i].y);
-                ctx.lineTo(mouse.x, mouse.y);
-                ctx.stroke();
-                
-                // Mouse gently pushes them away (breathing room)
-                particles[i].x += dxMouse * 0.015;
-                particles[i].y += dyMouse * 0.015;
-            }
+            // Smooth easing towards target position
+            p.x += (targetX - p.x) * 0.1;
+            p.y += (targetY - p.y) * 0.1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+            ctx.fill();
         }
+        
         requestAnimationFrame(loop);
     }
 
