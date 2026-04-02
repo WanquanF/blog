@@ -64,8 +64,9 @@
 2. **修改页面大标题 (H1)**: 替换双语 span 中的内容。
 3. **修改日期与阅读时间**: 确保日期和阅读时间的双语准确。
 4. **修改正文**: 在 `<div class="lang-zh">` 和 `<div class="lang-en">` 中分别填入内容。**不要破坏 `<article class="prose...">` 的外层包裹。**
-5. **更新引用块 (Citation)**: 更新文末 `@article` 引用代码块中的 `title`, `year`, 和 `url`。
-6. **更新首页列表**: 回到 `blog/index.html`，在 `<main>` 中复制一个现有的 `<article class="post-entry ...">` 块，填入新文章的链接、双语标题、日期和双语摘要。
+5. **(可选) 侧边栏目录 (TOC)**: 博客支持在右侧显示悬浮目录。如需开启，请确保文章内容的 `<main>` 标签与 `<aside>` 侧边栏包裹在一个 `flex` 容器内，并在 JS 中引入 `generateTOC()` 方法（参考 `20250912_wanquanfeng.html` 的实现）。
+6. **更新引用块 (Citation)**: 更新文末 `@article` 引用代码块中的 `title`, `year`, 和 `url`。
+7. **更新首页列表**: 回到 `blog/index.html`，在 `<main>` 中复制一个现有的 `<article class="post-entry ...">` 块，填入新文章的链接、双语标题、日期和双语摘要。
 
 ## 5. 样式参考字典 (Style Dictionary)
 如果未来 AI 需要添加新的 UI 元素，请务必支持 Dark Mode，并参考以下 Tailwind Class 组合以保持风格统一：

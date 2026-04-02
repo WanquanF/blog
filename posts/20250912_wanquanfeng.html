@@ -107,6 +107,62 @@
             const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
             html.setAttribute('lang', newLang);
             localStorage.setItem('blog-lang', newLang);
+            if (typeof generateTOC === 'function') generateTOC();
+        }
+
+        let tocObserver = null;
+        function generateTOC() {
+            const tocContainer = document.getElementById('toc-container');
+            if (!tocContainer) return;
+            
+            tocContainer.innerHTML = '';
+            if (tocObserver) {
+                tocObserver.disconnect();
+            }
+            
+            const html = document.documentElement;
+            const currentLang = html.getAttribute('lang') || 'en';
+            const langClass = currentLang === 'zh-CN' ? '.lang-zh' : '.lang-en';
+            
+            const article = document.querySelector('article');
+            if (!article) return;
+            
+            const headings = article.querySelectorAll(`${langClass} h2, ${langClass} h3`);
+            if (headings.length === 0) return;
+            
+            tocObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        document.querySelectorAll('#toc-container a').forEach(a => {
+                            a.classList.remove('text-blue-600', 'dark:text-blue-400', 'font-bold');
+                            if (a.getAttribute('href') === `#${id}`) {
+                                a.classList.add('text-blue-600', 'dark:text-blue-400', 'font-bold');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-10% 0px -80% 0px' });
+            
+            headings.forEach((heading, index) => {
+                if (!heading.id) {
+                    heading.id = `heading-${currentLang}-${index}`;
+                }
+                
+                const link = document.createElement('a');
+                link.href = `#${heading.id}`;
+                link.textContent = heading.textContent;
+                
+                let baseClasses = 'block hover:text-blue-600 dark:hover:text-blue-400 transition-colors';
+                if (heading.tagName.toLowerCase() === 'h3') {
+                    link.className = `${baseClasses} ml-4 text-xs text-gray-500 dark:text-gray-400`;
+                } else {
+                    link.className = `${baseClasses} font-medium mt-2 first:mt-0`;
+                }
+                
+                tocContainer.appendChild(link);
+                tocObserver.observe(heading);
+            });
         }
 
         function toggleTheme() {
@@ -160,6 +216,9 @@
                 ],
                 throwOnError : false
             });
+            
+            // Generate Table of Contents
+            if (typeof generateTOC === 'function') generateTOC();
         });
 
         document.addEventListener('scroll', function() {
@@ -240,8 +299,9 @@
         </div>
     </header>
 
-    <main>
-        <article class="prose dark:prose-invert prose-slate prose-lg lg:prose-xl prose-blue max-w-none">
+    <div class="flex flex-col lg:flex-row gap-12 relative">
+        <main class="flex-1 min-w-0">
+            <article class="prose dark:prose-invert prose-slate prose-lg lg:prose-xl prose-blue max-w-none">
             <div class="lang-zh">
                 <p>不知不觉做生成方向已经几年过去了，近期刚好有一些需要，整理了一个 diffusion 中用到的 SDE/ODE 基础数学推导的汇总。扩散模型虽然诞生已久，但仍热度不减，持续有新人加入。希望这些总结可以帮助到有需要的大家。</p>
 
@@ -354,7 +414,20 @@
                 <p>The significance of this reduction is to transform the evolution of the random variable $\mathbf{x}_t$ over time into the evolution of the marginal density $p_t$ over time. Why make this transformation? Because we usually sample in the form of random variables, but the underlying mathematical principles are mostly described in the form of probability density functions. Therefore, this transformation is necessary.</p>
             </div>
         </article>
-    </main>
+        </main>
+
+        <aside class="hidden lg:block w-64 flex-shrink-0">
+            <div class="sticky top-12 max-h-[calc(100vh-6rem)] overflow-y-auto pr-4 toc-sidebar">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4">
+                    <span class="lang-en">Table of Contents</span>
+                    <span class="lang-zh">目录</span>
+                </h3>
+                <nav id="toc-container" class="flex flex-col space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                    <!-- TOC will be dynamically generated here -->
+                </nav>
+            </div>
+        </aside>
+    </div>
 
 </body>
 </html>
