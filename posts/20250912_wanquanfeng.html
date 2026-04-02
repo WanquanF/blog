@@ -150,6 +150,17 @@
             }
             window.currentWeather = weather;
             document.documentElement.classList.add(`weather-${weather}`);
+
+            // Initialize KaTeX auto-render
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError : false
+            });
         });
 
         document.addEventListener('scroll', function() {
