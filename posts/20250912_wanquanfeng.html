@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffusion SDE/ODE 基础数学推导 | Wanquan Feng</title>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <script src="../assets/js/rain-effects.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .prose { font-family: 'Merriweather', Georgia, serif; max-width: 100%; }
+        .nav-link { position: relative; padding-bottom: 2px; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 0; background-color: #2563eb; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        
+        /* Language Toggle Styles */
+        html[lang="en"] .lang-zh { display: none !important; }
+        html[lang="zh-CN"] .lang-en { display: none !important; }
+        
+        .lang-btn {
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background-color: #f3f4f6;
+            color: #4b5563;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            background-color: #e5e7eb;
+            color: #111827;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: transparent;
+            z-index: 1000;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #2563eb;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            color: #2563eb;
+            border-color: #2563eb;
+            transform: translateY(-2px);
+        }
+        
+        /* Weather Toggle Styles */
+        .icon-none, .icon-rain, .icon-snow, .icon-constellation, .icon-fireflies, .icon-cherry, .icon-dandelion, .icon-ripples, .icon-grid { display: none; }
+        html.weather-none .icon-none { display: block; }
+        html.weather-rain .icon-rain { display: block; }
+        html.weather-snow .icon-snow { display: block; }
+        html.weather-constellation .icon-constellation { display: block; }
+        html.weather-fireflies .icon-fireflies { display: block; }
+        html.weather-cherry .icon-cherry { display: block; }
+        html.weather-dandelion .icon-dandelion { display: block; }
+        html.weather-ripples .icon-ripples { display: block; }
+        html.weather-grid .icon-grid { display: block; }
+    </style>
+    <script>
+        function toggleLanguage() {
+            const html = document.documentElement;
+            const currentLang = html.getAttribute('lang') || 'en';
+            const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
+            html.setAttribute('lang', newLang);
+            localStorage.setItem('blog-lang', newLang);
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('blog-theme', isDark ? 'dark' : 'light');
+        }
+
+        const weatherTypes = ['constellation', 'rain', 'snow', 'fireflies', 'cherry', 'dandelion', 'ripples', 'grid', 'none'];
+        function toggleWeather() {
+            let current = localStorage.getItem('blog-weather') || 'constellation';
+            let nextIndex = (weatherTypes.indexOf(current) + 1) % weatherTypes.length;
+            let next = weatherTypes[nextIndex];
+            
+            localStorage.setItem('blog-weather', next);
+            window.currentWeather = next;
+            
+            document.documentElement.className = document.documentElement.className.replace(/\bweather-\w+\b/g, '').trim();
+            document.documentElement.classList.add(`weather-${next}`);
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedLang = localStorage.getItem('blog-lang') || 'en';
+            document.documentElement.setAttribute('lang', savedLang);
+
+            let theme = localStorage.getItem('blog-theme');
+            if (!theme) {
+                theme = 'dark';
+                localStorage.setItem('blog-theme', theme);
+            }
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            
+            let weather = localStorage.getItem('blog-weather');
+            if (!weather) {
+                weather = 'constellation';
+                localStorage.setItem('blog-weather', weather);
+            }
+            window.currentWeather = weather;
+            document.documentElement.classList.add(`weather-${weather}`);
+        });
+
+        document.addEventListener('scroll', function() {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            const progressBar = document.getElementById("myBar");
+            if (progressBar) progressBar.style.width = scrolled + "%";
+            
+            const backToTopBtn = document.getElementById("backToTop");
+            if (backToTopBtn) {
+                if (winScroll > 300) {
+                    backToTopBtn.classList.add("visible");
+                } else {
+                    backToTopBtn.classList.remove("visible");
+                }
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    </script>
+</head>
+<body class="max-w-6xl mx-auto px-6 py-12 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div class="progress-container">
+        <div class="progress-bar" id="myBar"></div>
+    </div>
+    <button onclick="scrollToTop()" id="backToTop" class="back-to-top dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400" title="Go to top">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <header class="mb-12">
+        <nav class="flex justify-between items-center mb-16">
+            <div class="flex items-center gap-4">
+                <a href="../index.html" class="text-xl font-bold tracking-tight dark:text-white">Wanquan Feng's Blog</a>
+                <button onclick="toggleLanguage()" class="lang-btn dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <span class="lang-zh">Switch to English</span><span class="lang-en">切换为中文</span>
+                </button>
+                <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle Dark Mode">
+                    <svg class="w-5 h-5 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg class="w-5 h-5 block dark:hidden text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+                <button onclick="toggleWeather()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors weather-btn" title="Toggle Weather">
+                    <svg class="w-5 h-5 icon-rain text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-4-2v2m8-2v2"></path></svg>
+                    <svg class="w-5 h-5 icon-none text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                    <svg class="w-5 h-5 icon-snow text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15m10.607-5.303l-10.607 10.606m10.607 0L6.893 6.697"></path></svg>
+                    <svg class="w-5 h-5 icon-constellation text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                    <svg class="w-5 h-5 icon-fireflies text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    <svg class="w-5 h-5 icon-cherry text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    <svg class="w-5 h-5 icon-dandelion text-yellow-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    <svg class="w-5 h-5 icon-ripples text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-5 h-5 icon-grid text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                </button>
+            </div>
+            <div class="flex items-center space-x-6 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <a href="../index.html" class="nav-link text-blue-600 dark:text-blue-400">
+                    <span class="lang-en">Home</span><span class="lang-zh">首页</span>
+                </a>
+            </div>
+        </nav>
+
+        <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">
+            <span class="lang-zh">Diffusion 中用到的 SDE/ODE 基础数学推导汇总</span>
+            <span class="lang-en">Summary of Basic SDE/ODE Math Derivations in Diffusion Models</span>
+        </h1>
+        
+        <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <time datetime="2025-09-12">September 12, 2025</time>
+            <span>•</span>
+            <span>
+                <span class="lang-en">10 min read</span>
+                <span class="lang-zh">10 分钟阅读</span>
+            </span>
+        </div>
+    </header>
+
+    <main>
+        <article class="prose dark:prose-invert prose-slate prose-lg lg:prose-xl prose-blue max-w-none">
+            <div class="lang-zh">
+                <p>不知不觉做生成方向已经几年过去了，近期刚好有一些需要，整理了一个 diffusion 中用到的 SDE/ODE 基础数学推导的汇总。扩散模型虽然诞生已久，但仍热度不减，持续有新人加入。希望这些总结可以帮助到有需要的大家。</p>
+
+                <h2>SDE 作为在校课程</h2>
+                
+                <h3>【属于哪门课】</h3>
+                <p>SDE 全称 Stochastic Differential Equations，是「随机微分方程」这门课。</p>
+                
+                <h3>【有哪些前置课程】</h3>
+                <p>前置课程包括：</p>
+                <ul>
+                    <li><strong>基础课</strong>：数学分析（微积分）、线性代数</li>
+                    <li><strong>概率方向</strong>：概率论、随机过程</li>
+                    <li><strong>方程相关</strong>：常微分方程（ODE）、偏微分方程（PDE）</li>
+                    <li><strong>物理课</strong>（作为类比）：非平衡态统计力学。全部掌握确实难，好在我们可以边用边查。</li>
+                </ul>
+
+                <h3>【SDE 经典教材 & 大致讲了什么】</h3>
+                <p>Evans 的 <em>An Introduction to Stochastic Differential Equations</em>（<a href="https://math.berkeley.edu/~evans/SDE.course.pdf" target="_blank">pdf 链接</a>）非常不错，在讲透 SDE 的前提下大大简化了对前置知识的依赖，对工业界的 SDE 使用者来说，可以当做权威参考资料使用。大概内容包括：</p>
+                <ul>
+                    <li>布朗运动的定义、性质、构造</li>
+                    <li>随机积分、Ito 公式</li>
+                    <li>随机微分方程的定义、解的存在性和唯一性。大致经典的内容就包含这些，是一些自圆其说的基础理论，没有涉及到 SDE 在具体领域的应用或更深刻的性质。</li>
+                </ul>
+
+                <h3>【教材里讲的够我们用么？需要补充什么】</h3>
+                <p>显然教材不够用。知道「SDE 是什么」只是一个开始，仍无法回答「怎么把 SDE 应用在生成模型」这个问题。从时间上来看，布朗运动是 Einstein 在 1905 年推导、Wiener 在 1920 年归纳成数学理论的；SDE 理论最重要的贡献者 伊藤清 (Kiyoshi Ito) 已经于 2008 年去世；扩散模型的概念提出是在 2015 年，普及于 2020 年。除了经典教材上，还有很多额外的知识点需要补充。下面举一些例子：</p>
+                <ul>
+                    <li>Langevin Dynamics（1908 年）</li>
+                    <li>Fokker-Planck Equation（1917 年）</li>
+                    <li>Reverse Ito SDE（1982 年）</li>
+                    <li>Score Matching（2005 年）</li>
+                    <li>... ... 当然还有很多的现代的知识，比如 DDPM、DDIM、Flow Matching，这些就是我们这个年代的了。</li>
+                </ul>
+                <p>后面我们一点点展开来看吧。</p>
+            </div>
+            
+            <div class="lang-en">
+                <p>Unknowingly, several years have passed since I started working in the generative direction. Recently, due to some needs, I compiled a summary of the basic mathematical derivations of SDE/ODE used in diffusion models. Although diffusion models have been around for a while, they remain highly popular, with newcomers constantly joining the field. I hope these summaries can help those in need.</p>
+
+                <h2>SDE as an Academic Course</h2>
+                
+                <h3>[Which course does it belong to?]</h3>
+                <p>SDE stands for Stochastic Differential Equations, which corresponds to the course of the same name.</p>
+                
+                <h3>[What are the prerequisite courses?]</h3>
+                <p>Prerequisite courses include:</p>
+                <ul>
+                    <li><strong>Fundamental courses</strong>: Mathematical Analysis (Calculus), Linear Algebra</li>
+                    <li><strong>Probability direction</strong>: Probability Theory, Stochastic Processes</li>
+                    <li><strong>Equation related</strong>: Ordinary Differential Equations (ODE), Partial Differential Equations (PDE)</li>
+                    <li><strong>Physics courses</strong> (as an analogy): Non-equilibrium Statistical Mechanics. It is indeed difficult to master them all, but fortunately, we can look them up as we use them.</li>
+                </ul>
+
+                <h3>[Classic SDE Textbooks & What they roughly cover]</h3>
+                <p>Evans's <em>An Introduction to Stochastic Differential Equations</em> (<a href="https://math.berkeley.edu/~evans/SDE.course.pdf" target="_blank">pdf link</a>) is excellent. It thoroughly explains SDE while greatly simplifying the reliance on prerequisite knowledge. For SDE practitioners in the industry, it can be used as an authoritative reference. The contents roughly include:</p>
+                <ul>
+                    <li>Definition, properties, and construction of Brownian motion</li>
+                    <li>Stochastic integration, Ito's formula</li>
+                    <li>Definition of stochastic differential equations, existence, and uniqueness of solutions. The classic contents roughly cover these foundational theories that are self-consistent, without delving into the application of SDEs in specific fields or their deeper properties.</li>
+                </ul>
+
+                <h3>[Is what's covered in textbooks enough for us? What needs to be supplemented?]</h3>
+                <p>Obviously, textbooks are not enough. Knowing "what an SDE is" is just the beginning and still cannot answer the question of "how to apply SDEs to generative models." From a chronological perspective, Brownian motion was derived by Einstein in 1905 and summarized into mathematical theory by Wiener in 1920; Kiyoshi Ito, the most important contributor to SDE theory, passed away in 2008; the concept of diffusion models was proposed in 2015 and popularized around 2020. In addition to classic textbooks, many extra knowledge points need to be supplemented. Here are some examples:</p>
+                <ul>
+                    <li>Langevin Dynamics (1908)</li>
+                    <li>Fokker-Planck Equation (1917)</li>
+                    <li>Reverse Ito SDE (1982)</li>
+                    <li>Score Matching (2005)</li>
+                    <li>... ... Of course, there is also a lot of modern knowledge, such as DDPM, DDIM, and Flow Matching, which belong to our era.</li>
+                </ul>
+                <p>Let's unfold these bit by bit later.</p>
+            </div>
+        </article>
+    </main>
+
+</body>
+</html>
