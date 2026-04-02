@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Muon: 一个用于大模型隐藏层的优化器 | Wanquan Feng</title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <script src="../assets/js/rain-effects.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #1a1a1a; }
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; }
         .prose { font-family: 'Merriweather', Georgia, serif; max-width: 100%; }
         .nav-link { position: relative; padding-bottom: 2px; }
         .nav-link::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 0; background-color: #2563eb; transition: width 0.3s ease; }
@@ -83,6 +88,10 @@
             border-color: #2563eb;
             transform: translateY(-2px);
         }
+        
+        html.weather-sunny .icon-rain { display: none; }
+        html.weather-sunny .icon-sun { display: block; }
+        .icon-sun { display: none; }
     </style>
     <script>
         function toggleLanguage() {
@@ -92,11 +101,41 @@
             html.setAttribute('lang', newLang);
             localStorage.setItem('blog-lang', newLang);
         }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('blog-theme', isDark ? 'dark' : 'light');
+        }
+
+        function toggleWeather() {
+            const canvas = document.getElementById('rain-canvas');
+            if (canvas) {
+                const isHidden = canvas.style.display === 'none';
+                canvas.style.display = isHidden ? 'block' : 'none';
+                localStorage.setItem('blog-weather', isHidden ? 'rain' : 'sunny');
+                document.documentElement.classList.toggle('weather-sunny', !isHidden);
+            }
+        }
         
         document.addEventListener("DOMContentLoaded", () => {
             // Default to 'en' if nothing is saved in localStorage
             const savedLang = localStorage.getItem('blog-lang') || 'en';
             document.documentElement.setAttribute('lang', savedLang);
+
+            // Theme init
+            if (localStorage.getItem('blog-theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Weather init
+            const weather = localStorage.getItem('blog-weather');
+            if (weather === 'sunny') {
+                const canvas = document.getElementById('rain-canvas');
+                if (canvas) canvas.style.display = 'none';
+                document.documentElement.classList.add('weather-sunny');
+            }
         });
 
         // Reading Progress & Back to Top
@@ -122,34 +161,42 @@
         }
     </script>
 </head>
-<body class="max-w-6xl mx-auto px-6 py-12">
+<body class="max-w-6xl mx-auto px-6 py-12 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <div class="progress-container">
         <div class="progress-bar" id="myBar"></div>
     </div>
-    <button onclick="scrollToTop()" id="backToTop" class="back-to-top" title="Go to top">
+    <button onclick="scrollToTop()" id="backToTop" class="back-to-top dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400" title="Go to top">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
     </button>
 
     <header class="mb-12">
         <nav class="flex justify-between items-center mb-16">
             <div class="flex items-center gap-4">
-                <a href="../index.html" class="text-xl font-bold tracking-tight">Wanquan Feng</a>
-                <button onclick="toggleLanguage()" class="lang-btn">
+                <a href="../index.html" class="text-xl font-bold tracking-tight dark:text-white">Wanquan Feng</a>
+                <button onclick="toggleLanguage()" class="lang-btn dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                     <span class="lang-zh">Switch to English</span><span class="lang-en">切换为中文</span>
                 </button>
+                <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle Dark Mode">
+                    <svg class="w-5 h-5 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg class="w-5 h-5 block dark:hidden text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+                <button onclick="toggleWeather()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors weather-btn" title="Toggle Weather">
+                    <svg class="w-5 h-5 icon-rain text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-4-2v2m8-2v2"></path></svg>
+                    <svg class="w-5 h-5 icon-sun text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </button>
             </div>
-            <div class="flex items-center space-x-6 text-sm font-medium text-gray-600">
-                <a href="../index.html" class="nav-link text-blue-600">
+            <div class="flex items-center space-x-6 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <a href="../index.html" class="nav-link text-blue-600 dark:text-blue-400">
                     <span class="lang-en">Home</span><span class="lang-zh">首页</span>
                 </a>
             </div>
         </nav>
         <div class="space-y-4">
-            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
                 <span class="lang-zh">应用案例：Flow-GRPO</span>
                 <span class="lang-en">Use Case: Flow-GRPO</span>
             </h1>
-            <div class="flex items-center gap-3 text-sm text-gray-500">
+            <div class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                 <time datetime="2026-04-01">
                     <span class="lang-zh">2026年4月1日</span>
                     <span class="lang-en">April 1, 2026</span>
@@ -163,7 +210,7 @@
         </div>
     </header>
     <main>
-        <article class="prose prose-slate prose-lg lg:prose-xl prose-blue">
+        <article class="prose prose-slate prose-lg lg:prose-xl prose-blue dark:prose-invert">
             <div class="lang-zh">
                 <p>在 Flow-GRPO 论文中，采样想加入随机性，就必须得将 reverse 过程改造成 SDE。在原文中：</p>
                 <div class="my-8">$ \mathbf{f}_{SDE} = \mathbf{v} + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x}) $</div>
@@ -178,13 +225,13 @@
             </div>
         </article>
     </main>
-    <footer class="mt-24 pt-12 border-t border-gray-100">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-400">
+    <footer class="mt-24 pt-12 border-t border-gray-100 dark:border-gray-800">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-gray-400 dark:text-gray-500">
             <p>&copy; 2026 Wanquan Feng. <span class="lang-en">All rights reserved.</span><span class="lang-zh">保留所有权利。</span></p>
             <div class="flex space-x-6">
-                <a href="https://scholar.google.com/citations?user=na2akZYAAAAJ" class="hover:text-gray-600"><span class="lang-en">Scholar</span><span class="lang-zh">学术主页</span></a>
-                <a href="https://github.com/wanquanf" class="hover:text-gray-600">GitHub</a>
-                <a href="https://www.zhihu.com/people/xuanya2017" class="hover:text-gray-600"><span class="lang-en">Zhihu</span><span class="lang-zh">知乎</span></a>
+                <a href="https://scholar.google.com/citations?user=na2akZYAAAAJ" class="hover:text-gray-600 dark:hover:text-gray-400"><span class="lang-en">Scholar</span><span class="lang-zh">学术主页</span></a>
+                <a href="https://github.com/wanquanf" class="hover:text-gray-600 dark:hover:text-gray-400">GitHub</a>
+                <a href="https://www.zhihu.com/people/xuanya2017" class="hover:text-gray-600 dark:hover:text-gray-400"><span class="lang-en">Zhihu</span><span class="lang-zh">知乎</span></a>
             </div>
         </div>
     </footer>
