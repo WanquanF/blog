@@ -64,14 +64,13 @@
         }
         
         /* Weather Toggle Styles */
-        .icon-sun, .icon-rain, .icon-snow, .icon-magic { display: none; }
-        html.weather-sunny .icon-sun { display: block; }
+        .icon-none, .icon-rain, .icon-snow, .icon-magic { display: none; }
+        html.weather-none .icon-none { display: block; }
         html.weather-rain .icon-rain { display: block; }
         html.weather-snow .icon-snow { display: block; }
         html.weather-fireflies .icon-magic, html.weather-cherry .icon-magic,
         html.weather-dandelion .icon-magic, html.weather-ripples .icon-magic,
-        html.weather-constellation .icon-magic, html.weather-neural .icon-magic,
-        html.weather-grid .icon-magic { display: block; }
+        html.weather-constellation .icon-magic, html.weather-grid .icon-magic { display: block; }
     </style>
     <script>
         function toggleLanguage() {
@@ -89,9 +88,9 @@
             localStorage.setItem('blog-theme', isDark ? 'dark' : 'light');
         }
 
-        const weatherTypes = ['sunny', 'rain', 'snow', 'fireflies', 'cherry', 'dandelion', 'ripples', 'constellation', 'neural', 'grid'];
+        const weatherTypes = ['constellation', 'rain', 'snow', 'fireflies', 'cherry', 'dandelion', 'ripples', 'grid', 'none'];
         function toggleWeather() {
-            let current = localStorage.getItem('blog-weather') || 'sunny';
+            let current = localStorage.getItem('blog-weather') || 'constellation';
             let nextIndex = (weatherTypes.indexOf(current) + 1) % weatherTypes.length;
             let next = weatherTypes[nextIndex];
             
@@ -108,12 +107,21 @@
             document.documentElement.setAttribute('lang', savedLang);
 
             // Theme init
-            if (localStorage.getItem('blog-theme') === 'dark') {
+            let theme = localStorage.getItem('blog-theme');
+            if (!theme) {
+                theme = 'dark';
+                localStorage.setItem('blog-theme', theme);
+            }
+            if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
             }
             
             // Weather init
-            const weather = localStorage.getItem('blog-weather') || 'sunny';
+            let weather = localStorage.getItem('blog-weather');
+            if (!weather) {
+                weather = 'constellation';
+                localStorage.setItem('blog-weather', weather);
+            }
             window.currentWeather = weather;
             document.documentElement.classList.add(`weather-${weather}`);
         });
@@ -133,7 +141,7 @@
                 </button>
                 <button onclick="toggleWeather()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors weather-btn" title="Toggle Weather">
                     <svg class="w-5 h-5 icon-rain text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-4-2v2m8-2v2"></path></svg>
-                    <svg class="w-5 h-5 icon-sun text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg class="w-5 h-5 icon-none text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                     <svg class="w-5 h-5 icon-snow text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15m10.607-5.303l-10.607 10.606m10.607 0L6.893 6.697"></path></svg>
                     <svg class="w-5 h-5 icon-magic text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
                 </button>

@@ -1,4 +1,4 @@
-window.currentWeather = localStorage.getItem('blog-weather') || 'sunny';
+window.currentWeather = localStorage.getItem('blog-weather') || 'constellation';
 
 document.addEventListener("DOMContentLoaded", function() {
     const canvas = document.createElement('canvas');
@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (ripples[i].a <= 0) ripples.splice(i, 1);
                 else ripples[i].draw();
             }
-        } else if (w === 'constellation' || w === 'neural') {
+        } else if (w === 'constellation') {
             stars.forEach(s => { s.update(); s.draw(isDark); });
             let pts = [...stars, mouse];
             for (let i = 0; i < pts.length; i++) {
@@ -185,10 +185,6 @@ document.addEventListener("DOMContentLoaded", function() {
                         let alpha = 1 - dist/120;
                         ctx.strokeStyle = isDark ? `rgba(255,255,255,${alpha*0.2})` : `rgba(0,0,0,${alpha*0.2})`;
                         ctx.stroke();
-                        if (w === 'neural' && Math.random() < 0.01) {
-                            ctx.beginPath(); ctx.arc(pts[i].x + dx*Math.random(), pts[i].y + dy*Math.random(), 2, 0, Math.PI*2);
-                            ctx.fillStyle = isDark ? 'rgba(0,255,255,0.8)' : 'rgba(0,100,255,0.8)'; ctx.fill();
-                        }
                     }
                 }
             }
