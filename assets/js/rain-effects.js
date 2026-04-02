@@ -1,6 +1,8 @@
+window.currentWeather = localStorage.getItem('blog-weather') || 'sunny';
+
 document.addEventListener("DOMContentLoaded", function() {
     const canvas = document.createElement('canvas');
-    canvas.id = 'rain-canvas';
+    canvas.id = 'weather-canvas';
     canvas.style.position = 'fixed';
     canvas.style.top = '0';
     canvas.style.left = '0';
@@ -12,8 +14,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const ctx = canvas.getContext('2d');
     let width, height;
+    
+    // Arrays for different particles
     let drops = [];
     let splashes = [];
+    let snowflakes = [];
 
     function resize() {
         width = canvas.width = window.innerWidth;
@@ -22,6 +27,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     window.addEventListener('resize', resize);
 
+    // --- RAIN CLASSES ---
     class Drop {
         constructor() {
             this.reset();
@@ -83,10 +89,47 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    // --- SNOW CLASSES ---
+    class Snowflake {
+        constructor() {
+            this.reset();
+            this.y = Math.random() * height;
+        }
+        reset() {
+            this.x = Math.random() * width;
+            this.y = -10;
+            this.speed = Math.random() * 1.5 + 0.5;
+            this.radius = Math.random() * 2 + 1;
+            this.wind = (Math.random() - 0.5) * 1;
+            this.swing = Math.random() * Math.PI * 2;
+            this.swingSpeed = Math.random() * 0.02 + 0.01;
+        }
+        update() {
+            this.y += this.speed;
+            this.swing += this.swingSpeed;
+            this.x += Math.sin(this.swing) * 0.5 + this.wind;
+            
+            if (this.y > height) this.reset();
+            if (this.x > width) this.x = 0;
+            if (this.x < 0) this.x = width;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            // Make snow visible in light and dark mode: semi-transparent blue/white
+            const isDark = document.documentElement.classList.contains('dark');
+            ctx.fillStyle = isDark ? `rgba(255, 255, 255, 0.6)` : `rgba(160, 190, 230, 0.7)`;
+            ctx.fill();
+        }
+    }
+
     function init() {
         resize();
         for (let i = 0; i < 100; i++) {
             drops.push(new Drop());
+        }
+        for (let i = 0; i < 150; i++) {
+            snowflakes.push(new Snowflake());
         }
         loop();
     }
@@ -94,20 +137,28 @@ document.addEventListener("DOMContentLoaded", function() {
     function loop() {
         ctx.clearRect(0, 0, width, height);
         
-        drops.forEach(drop => {
-            drop.update();
-            drop.draw();
-        });
+        if (window.currentWeather === 'rain') {
+            drops.forEach(drop => {
+                drop.update();
+                drop.draw();
+            });
 
-        for (let i = splashes.length - 1; i >= 0; i--) {
-            let s = splashes[i];
-            s.update();
-            if (s.life <= 0) {
-                splashes.splice(i, 1);
-            } else {
-                s.draw();
+            for (let i = splashes.length - 1; i >= 0; i--) {
+                let s = splashes[i];
+                s.update();
+                if (s.life <= 0) {
+                    splashes.splice(i, 1);
+                } else {
+                    s.draw();
+                }
             }
+        } else if (window.currentWeather === 'snow') {
+            snowflakes.forEach(flake => {
+                flake.update();
+                flake.draw();
+            });
         }
+        // If 'sunny', draw nothing
         
         requestAnimationFrame(loop);
     }
