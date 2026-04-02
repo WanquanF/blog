@@ -10,63 +10,162 @@
         body {
             background-color: #ffffff;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
         }
-        .content-container {
-            min-height: 100vh;
-            width: 63rem; /* Increased width for a more spacious feel */
-            max-width: 100%;
-            padding: 4rem 2rem;
-            position: relative;
+        #layout-content {
+            margin-top: 25px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
         }
-        .text-blue-600 { color: #004d98; }
-        .hover\:text-blue-800:hover { color: #003366; }
-        .group-hover\:text-blue-600:hover { color: #004d98; }
-        .border-slate-200 { border-color: rgba(0, 0, 0, 0.08); }
+        /* Navigation */
+        .nav-container {
+            text-align: left;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .nav-link {
+            margin: 0 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+        }
+        .nav-link:hover {
+            color: #01a16f;
+        }
+        /* Title styles */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        h2 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        h3 {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        /* Link styles */
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #01a16f;
+        }
+        /* Article styles */
+        .article-list {
+            list-style: none;
+            padding: 0;
+        }
+        .article-item {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .article-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .article-meta {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        .article-summary {
+            color: #333;
+            line-height: 1.5;
+        }
+        /* Footer */
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f0f0f0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        /* Bounce animation */
+        .bounce-animation {
+            display: inline-block;
+            animation: bounce 1.5s infinite;
+            font-weight: bold;
+            color: #01a16f;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
     </style>
 </head>
 <body class="text-slate-900 font-sans">
-    <div class="content-container">
+    <div id="layout-content">
+        <!-- Navigation -->
+        <div class="nav-container">
+            <a href="https://wanquanf.github.io/" class="nav-link">Home</a>
+            <a href="https://wanquanf.github.io/#introduction" class="nav-link">Short-Bio</a>
+            <a href="https://wanquanf.github.io/#publications" class="nav-link">Research</a>
+            <a href="index.html" class="nav-link">Blog</a>
+            <a href="https://wanquanf.github.io/#news" class="nav-link">News</a>
+        </div>
+
         <header class="mb-16">
-            <h1 class="text-3xl font-bold tracking-tight">WanquanF</h1>
-            <p class="text-slate-500 mt-2">分享技术、算法与一些随笔</p>
+            <h1>Wanquan Feng (冯万泉)</h1>
+            <h3>Researcher @ ByteDance Seed Team</h3>
+            <p>
+                Multimodal AI / Video Generation / World Model<br>
+                <br>
+                Email: wanquan0322@gmail.com <br>
+                Wechat(微信): lcfwqq <br>
+                [<a href="https://scholar.google.com/citations?user=na2akZYAAAAJ&amp;hl=en">Google Scholar</a>]
+                [<a href="https://github.com/wanquanf">GitHub</a>] 
+                [<a href="https://www.zhihu.com/people/xuanya2017/columns">知乎</a>] <br>
+            </p>
+            <p><br><span class="bounce-animation">WELCOME TO READ MY <a href="index.html" style="color: #f08fd3; margin-top: 10px; font-size: 20px;">BLOG（技术博客）</a></span> </p>
         </header>
 
         <main>
-            <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-8">文章列表</h2>
-            <ul class="space-y-10">
-                <li class="group">
-                    <a href="posts/2026-04-01-flow-grpo.html" class="block">
-                        <div class="flex justify-between items-baseline mb-1">
-                            <h3 class="text-xl font-medium group-hover:text-blue-600 transition-colors">
-                                应用案例：Flow-GRPO
-                            </h3>
-                            <time class="text-sm text-slate-400 whitespace-nowrap ml-4">2026-04-01</time>
-                        </div>
-                        <p class="text-slate-600 line-clamp-2">
+            <h2>文章列表</h2>
+            <ul class="article-list">
+                <li class="article-item">
+                    <a href="posts/2026-04-01-flow-grpo.html">
+                        <div class="article-title">应用案例：Flow-GRPO</div>
+                        <div class="article-meta">2026-04-01</div>
+                        <div class="article-summary">
                             在 Flow-GRPO 论文中，将 reverse 过程改造成 SDE 的简要分析。
-                        </p>
+                        </div>
                     </a>
                 </li>
-                <li class="group">
-                    <a href="posts/2026-04-01-muon-optimizer.html" class="block">
-                        <div class="flex justify-between items-baseline mb-1">
-                            <h3 class="text-xl font-medium group-hover:text-blue-600 transition-colors">
-                                Muon: 一个用于大模型隐藏层的优化器
-                            </h3>
-                            <time class="text-sm text-slate-400 whitespace-nowrap ml-4">2026-04-01</time>
-                        </div>
-                        <p class="text-slate-600 line-clamp-2">
+                <li class="article-item">
+                    <a href="posts/2026-04-01-muon-optimizer.html">
+                        <div class="article-title">Muon: 一个用于大模型隐藏层的优化器</div>
+                        <div class="article-meta">2026-04-01</div>
+                        <div class="article-summary">
                             关于大模型隐藏层优化器 Muon 的一些笔记与思考。
-                        </p>
+                        </div>
                     </a>
                 </li>
             </ul>
         </main>
 
-        <footer class="mt-24 pt-8 border-t border-slate-200 text-sm text-slate-400">
-            &copy; 2026 WanquanF. Built with Tailwind CSS.
+        <footer>
+            &copy; 2026 Wanquan Feng. All rights reserved.
         </footer>
     </div>
 </body>
