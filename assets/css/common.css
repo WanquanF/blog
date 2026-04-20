@@ -149,13 +149,9 @@ html.weather-grid .icon-grid { display: block; }
 }
 .dark .proof-box {
     background-color: #0f172a; /* Tailwind bg-slate-950 */
-    border-color: #1e293b; /* Tailwind border-slate-800 */
-    border-left: 4px solid #67e8f9; /* Professional Cyan highlight on the left */
+    border: 1px solid #67e8f9; /* Professional Cyan highlight full border */
     color: #e2e8f0; /* Crisp text color for the box */
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
-}
-.dark .proof-box .katex {
-    color: #67e8f9; /* Cyan highlight for formulas */
 }
 
 /* Auto-numbering for headings to look like a paper */
