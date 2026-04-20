@@ -356,6 +356,49 @@
                 <p class="text-center">$$\frac{\partial p}{\partial t} = -\nabla \cdot [\mathbf{f}(\mathbf{x}, t)p(\mathbf{x}, t)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T p(\mathbf{x}, t))]$$</p>
                 <p>这个方程就叫做 Fokker-Planck 方程。</p>
                 <p>这个化归的意义在于，把随机变量 $\mathbf{x}_t$ 随时间的演变，转化成边缘密度 $p_t$ 随时间的演变。为什么要做这个转变呢？因为我们通常采样都是以随机变量的形式，但是背后的数学原理很多是以概率密度函数的形式来进行描述。所以这个转变是必要的。</p>
+
+                <h3>证明：</h3>
+                <p>取一个任意的标量测试函数 $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$，不显式包含 $t$，且满足：光滑、支撑集有界。</p>
+                <p>然后我们关注函数 $\phi(\mathbf{x})$，下面将用两种方式计算它的「$\mathbb{E}$ & $\frac{\partial}{\partial t}$」的组合。</p>
+                
+                <p><strong>(1) 先计算期望，再求导数</strong></p>
+                <p>其期望为 $\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})p(\mathbf{x}, t)d\mathbf{x}$</p>
+                <p>再求导得 $\frac{d}{dt}\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x}$</p>
+
+                <p><strong>(2) 先求导数，再求期望</strong></p>
+                <p>计算 $d\phi$ 需要用到 Ito's 公式，见 Evans 的 Page 72 中间的那个公式</p>
+                <p>我们有：$d\phi = \frac{\partial \phi}{\partial t}dt + (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$</p>
+                <p>因为 $\phi(\mathbf{x})$ 不显式包含 $t$，所以第一项为 0，进而</p>
+                <p class="text-center">$$d\phi = (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$</p>
+                <p>将 Forward SDE $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ 带进去，得到</p>
+                <p class="text-center">
+                    $$d\phi = (\nabla \phi)^T (\mathbf{f}dt + \mathbf{G}d\mathbf{w}) + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$<br>
+                    $$= \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt + (\nabla \phi)^T\mathbf{G}d\mathbf{w}$$
+                </p>
+                <p>然后我们就可以对上式进行积分（求期望）了：</p>
+                <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right] + \mathbb{E}[(\nabla \phi)^T\mathbf{G}d\mathbf{w}]$$</p>
+                <p>根据布朗运动性质，第二项为 0，所以</p>
+                <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right]$$</p>
+                <p>故</p>
+                <p class="text-center">
+                    $$\mathbb{E}\left[ \frac{d\phi}{dt} \right] = \mathbb{E}\left[ (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right]$$<br>
+                    $$= \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}$$
+                </p>
+
+                <p><strong>(3) 考虑到前面两步的计算结果，我们有：</strong></p>
+                <p class="text-center">$$\int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} = \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}$$</p>
+                <p>作为积分的核函数，我们不希望表达式里有 $\phi$ 的导数，所以通过分部积分法，将导数转移到 $p$ 上去</p>
+                <p class="text-center">$$\int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} = - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x}$$</p>
+                <p class="text-center">$$\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x} = \int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x}$$</p>
+                <p>所以我们得到</p>
+                <p class="text-center">
+                    $$\int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} = - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x}$$<br>
+                    $$= \int_{\mathbb{R}^N} \phi(\mathbf{x}) \left\{ -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T)) \right\} d\mathbf{x}$$
+                </p>
+
+                <p><strong>(4)</strong> 考虑到上式对任意的测试函数 $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$（不显式包含 $t$，且满足：光滑、支撑集有界）均成立，那么其实可以把积分号拆掉，把 $\phi(\mathbf{x})$ 也拿掉，于是就得到了我们想要的 Fokker-Planck 方程：</p>
+                <p class="text-center">$$\frac{\partial p(\mathbf{x}, t)}{\partial t} = -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))$$</p>
+                <p>证毕。</p>
             </div>
             
             <div class="lang-en">
@@ -412,6 +455,49 @@
                 <p class="text-center">$$\frac{\partial p}{\partial t} = -\nabla \cdot [\mathbf{f}(\mathbf{x}, t)p(\mathbf{x}, t)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T p(\mathbf{x}, t))]$$</p>
                 <p>This is known as the Fokker-Planck equation.</p>
                 <p>The significance of this formulation lies in transforming the temporal evolution of the random variable $\mathbf{x}_t$ into the temporal evolution of its marginal density $p_t$. Why is this transformation necessary? While we typically sample discrete random variables in practice, the underlying mathematical principles are largely described using probability density functions. Thus, this bridge is essential.</p>
+
+                <h3>Proof:</h3>
+                <p>Let us choose an arbitrary scalar test function $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$ that does not explicitly depend on $t$, and satisfies the conditions of being smooth and having compact support.</p>
+                <p>Focusing on the function $\phi(\mathbf{x})$, we will calculate the combination of its expectation $\mathbb{E}$ and time derivative $\frac{\partial}{\partial t}$ in two different ways.</p>
+                
+                <p><strong>(1) First take the expectation, then compute the derivative</strong></p>
+                <p>Its expectation is given by: $\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})p(\mathbf{x}, t)d\mathbf{x}$</p>
+                <p>Taking the derivative yields: $\frac{d}{dt}\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x}$</p>
+
+                <p><strong>(2) First compute the derivative, then take the expectation</strong></p>
+                <p>To calculate $d\phi$, we need to apply Ito's formula (refer to the equation in the middle of Page 72 in Evans's book).</p>
+                <p>We have: $d\phi = \frac{\partial \phi}{\partial t}dt + (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$</p>
+                <p>Since $\phi(\mathbf{x})$ does not explicitly contain $t$, the first term is 0, which leads to:</p>
+                <p class="text-center">$$d\phi = (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$</p>
+                <p>Substituting the Forward SDE $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ into the equation, we get:</p>
+                <p class="text-center">
+                    $$d\phi = (\nabla \phi)^T (\mathbf{f}dt + \mathbf{G}d\mathbf{w}) + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$<br>
+                    $$= \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt + (\nabla \phi)^T\mathbf{G}d\mathbf{w}$$
+                </p>
+                <p>We can now take the expectation of the above equation:</p>
+                <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right] + \mathbb{E}[(\nabla \phi)^T\mathbf{G}d\mathbf{w}]$$</p>
+                <p>Due to the properties of Brownian motion, the second term evaluates to 0, hence:</p>
+                <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right]$$</p>
+                <p>Therefore,</p>
+                <p class="text-center">
+                    $$\mathbb{E}\left[ \frac{d\phi}{dt} \right] = \mathbb{E}\left[ (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right]$$<br>
+                    $$= \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}$$
+                </p>
+
+                <p><strong>(3) Combining the results from the previous two steps, we have:</strong></p>
+                <p class="text-center">$$\int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} = \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}$$</p>
+                <p>As the kernel function of the integral, we prefer not to have derivatives of $\phi$ in the expression. Thus, we use integration by parts to transfer the derivatives onto $p$:</p>
+                <p class="text-center">$$\int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} = - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x}$$</p>
+                <p class="text-center">$$\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x} = \int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x}$$</p>
+                <p>So we obtain:</p>
+                <p class="text-center">
+                    $$\int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} = - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x}$$<br>
+                    $$= \int_{\mathbb{R}^N} \phi(\mathbf{x}) \left\{ -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T)) \right\} d\mathbf{x}$$
+                </p>
+
+                <p><strong>(4)</strong> Given that the above equation holds for any test function $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$ (which does not explicitly contain $t$, is smooth, and has compact support), we can essentially remove the integral signs and the function $\phi(\mathbf{x})$. This yields the desired Fokker-Planck equation:</p>
+                <p class="text-center">$$\frac{\partial p(\mathbf{x}, t)}{\partial t} = -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))$$</p>
+                <p>Q.E.D.</p>
             </div>
         </article>
         </main>
