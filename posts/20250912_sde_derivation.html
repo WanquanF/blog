@@ -14,17 +14,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tufte-css/1.8.0/tufte.min.css">
     <style>
-        /* Tufte Override for Tailwind compatibility */
-        body { font-family: 'Times New Roman', Times, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; width: auto; margin: 0 auto; padding: 0; background-color: inherit; color: inherit; max-width: none; font-size: 16px; }
+        body { font-family: 'Times New Roman', Times, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; }
         .prose { font-family: 'Times New Roman', Times, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; max-width: 100%; }
-        
-        /* Tufte typography specific tweaks inside article */
-        .tufte h2, .tufte h3 { font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: 400; }
-        .tufte p { line-height: 2rem; }
-        .tufte blockquote { font-size: 1.4rem; }
-        .tufte .marginnote { float: right; clear: right; margin-right: -60%; width: 50%; margin-top: 0.3rem; margin-bottom: 0; font-size: 1.1rem; line-height: 1.3; vertical-align: baseline; position: relative; }
         .nav-link { position: relative; padding-bottom: 2px; }
         .nav-link::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 0; background-color: #2563eb; transition: width 0.3s ease; }
         .nav-link:hover::after { width: 100%; }
@@ -309,7 +301,7 @@
 
     <div class="flex flex-col lg:flex-row gap-12 relative">
         <main class="flex-1 min-w-0">
-            <article class="prose tufte dark:prose-invert prose-slate prose-lg lg:prose-xl prose-blue max-w-none">
+            <article class="prose dark:prose-invert prose-slate prose-lg lg:prose-xl prose-blue max-w-none">
             <div class="lang-zh">
                 <p>不知不觉做生成方向已经几年过去了，近期刚好有一些需要，整理了一个 diffusion 中用到的 SDE/ODE 基础数学推导的汇总。扩散模型虽然诞生已久，但仍热度不减，持续有新人加入。希望这些总结可以帮助到有需要的大家。</p>
 
