@@ -34,151 +34,7 @@
                 </button>
                 <div class="hidden sm:flex items-center text-sm text-gray-400 dark:text-gray-500 italic ml-2">
                     <span class="lang-zh mr-1">点击以切换主题</span><span class="lang-en mr-1">Click to toggle theme</span> &rarr;
-                    <h2>Training the Network to Output Accurate Score (Loss Derivation)</h2>
-                
-                <p>In the Reverse SDE above, we encounter the term $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$. There is a critical issue to note: this term is actually unknown when performing actual reverse sampling! This leads to an awkward infinite loop:</p>
-                
-                <blockquote class="border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 p-4 my-4 rounded-r-lg">
-                    <p class="m-0">Without knowing $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$, we cannot perform reverse sampling.<br>
-                    If we cannot perform reverse sampling, we still do not know $p_t(\mathbf{x})$, and consequently, we do not know $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$.<br>
-                    Without knowing $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$, we still cannot perform reverse sampling.<br>
-                    ... ... Infinite loop.</p>
-                </blockquote>
-                
-                <p>Therefore, we must use a neural network to estimate $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$; otherwise, this reverse process is definitely impossible to complete.</p>
-
-                <h3>Selection of the Prediction Target</h3>
-                <p>But why don't we directly predict $p_t(\mathbf{x})$? Why take a detour to estimate $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$? The reasons are as follows:</p>
-                <ol>
-                    <li>$p_t(\mathbf{x})$ needs to satisfy a "strong condition", which is $\int_{\mathbf{x}} p_t(\mathbf{x})d\mathbf{x} \equiv 1$. This condition is impossible for a neural network to satisfy, as it applies over the entire training set, making it an NP-hard problem.</li>
-                    <li>Even taking the logarithm, denoting $r_t(\mathbf{x}) = \log p_t(\mathbf{x})$, doesn't work. The constraint $\int_{\mathbf{x}} \exp\{p_t(\mathbf{x})\}d\mathbf{x} \equiv 1$ is still too strong.</li>
-                    <li>However, $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$ does not have this problem. It does not need to satisfy any global normalization conditions. Therefore, the network can predict freely without violating any fundamental rules.</li>
-                </ol>
-
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 my-6">
-                    <p class="mt-0 mb-2">🎃 <strong>Defining the score function:</strong></p>
-                    <p class="text-center">$$s(\mathbf{x}, t) = \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$$</p>
-                    <p class="mb-0">At the same time, our goal becomes clear: have the network predict a term $s_\theta(\mathbf{x}, t)$ such that $s_\theta(\mathbf{x}, t) \approx s(\mathbf{x}, t)$.</p>
                 </div>
-
-                <h3>What to do without Ground Truth?</h3>
-                <p>Another massive problem is that there is actually no Ground Truth for $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$.</p>
-                <p>During training, we have data points $\mathbf{x}_0$, but we do not have $p_0(\mathbf{x})$. So even if we add noise to $\mathbf{x}_0$ to obtain $\mathbf{x}_t$ according to known formulas, we still do not know $p_t(\mathbf{x})$.</p>
-                <p>But! Fortunately!</p>
-
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃 <strong>1. We know the conditional distribution $p_t(\mathbf{x}_t | \mathbf{x}_0)$</strong></p>
-                    <p>Generally, $p_t(\mathbf{x}_t | \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; a\mathbf{x}_0, b\mathbf{I})$, corresponding to the add noise process in training. Note that $\nabla_{\mathbf{x}} \log \{p_t(\mathbf{x}_t | \mathbf{x}_0)\} = -\frac{\mathbf{x}_t - a\mathbf{x}_0}{b}$. This term can actually be written out as a specific expression, so we can boldly use it in the loss function.</p>
-                    
-                    <p class="mt-6"><strong>2. Another important equality is:</strong></p>
-                    <p class="text-center">$$\mathbb{E}_{\mathbf{x}_t} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_t(\mathbf{x}_t) \|_2^2 \right] = \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_t(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const$$</p>
-                    <p>Where $Const$ represents terms independent of $s_\theta(\mathbf{x}_t, t)$. We will provide the proof for this later below.</p>
-                    <p>Through the above reduction, we can safely let the network estimate $\nabla_{\mathbf{x}} \log \{p_t(\mathbf{x}_t | \mathbf{x}_0)\}$:</p>
-                    <p class="text-center">$$\theta^* = \arg\min_\theta \mathbb{E}_t \left\{ \lambda(t) \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla_{\mathbf{x}} \log \{p_t(\mathbf{x}_t | \mathbf{x}_0)\} \|_2^2 \right] \right\}$$</p>
-                    <p>Where $\lambda(t) > 0$, usually not very important, setting it casually can mostly result in successful training.</p>
-                    <p class="mb-0"><strong>3. Actually, the loss of diffusion training frameworks is always equivalent to this form, including DDPM, SMLD, etc.</strong></p>
-                </div>
-
-                <p>Now let's prove the equality above:</p>
-                <p class="text-center">$$\mathbb{E}_{\mathbf{x}_t} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_t(\mathbf{x}_t) \|_2^2 \right] = \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_t(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const$$</p>
-                <p>The proof process is very simple, just expand the integral and calculate:</p>
-
-                <div class="proof-box">
-                    <p>✍️ <strong>Proof:</strong></p>
-                    <p>Let all terms independent of $s_\theta(\mathbf{x}_t, t)$ be denoted as $Const$. In addition, we need to use the marginal integral: $p_t(\mathbf{x}_t) = \int_{\mathbf{x}_0} p_0(\mathbf{x}_0)p_{t|0}(\mathbf{x}_t | \mathbf{x}_0)d\mathbf{x}_0$</p>
-                    <p>Starting from the left side, let's expand it:</p>
-                    <p class="text-center overflow-x-auto">
-                        $$\begin{aligned}
-                        &\mathbb{E}_{\mathbf{x}_t} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_t(\mathbf{x}_t) \|_2^2 \right] \\
-                        &= \mathbb{E}_{\mathbf{x}_t} \left[ \| s_\theta(\mathbf{x}_t, t) \|_2^2 - 2 s_\theta(\mathbf{x}_t, t) \cdot \nabla \log p_t(\mathbf{x}_t) + \| \nabla \log p_t(\mathbf{x}_t) \|_2^2 \right] \\
-                        &= \int_{\mathbf{x}_t} \left( \| s_\theta(\mathbf{x}_t, t) \|_2^2 - 2 s_\theta(\mathbf{x}_t, t) \cdot \nabla \log p_t(\mathbf{x}_t) + \| \nabla \log p_t(\mathbf{x}_t) \|_2^2 \right) p_t(\mathbf{x}_t)d\mathbf{x}_t \\
-                        &= \int_{\mathbf{x}_t} \| s_\theta(\mathbf{x}_t, t) \|_2^2 p_t(\mathbf{x}_t)d\mathbf{x}_t + \int_{\mathbf{x}_t} \| \nabla \log p_t(\mathbf{x}_t) \|_2^2 p_t(\mathbf{x}_t)d\mathbf{x}_t - 2 \int_{\mathbf{x}_t} [s_\theta(\mathbf{x}_t, t) \cdot \nabla \log p_t(\mathbf{x}_t)] p_t(\mathbf{x}_t)d\mathbf{x}_t \\
-                        &= \int_{\mathbf{x}_t} \| s_\theta(\mathbf{x}_t, t) \|_2^2 p_t(\mathbf{x}_t)d\mathbf{x}_t - 2 \int_{\mathbf{x}_t} [s_\theta(\mathbf{x}_t, t) \cdot \nabla \log p_t(\mathbf{x}_t)] p_t(\mathbf{x}_t)d\mathbf{x}_t + Const \\
-                        &= \int_{\mathbf{x}_t} \| s_\theta(\mathbf{x}_t, t) \|_2^2 p_t(\mathbf{x}_t)d\mathbf{x}_t - 2 \int_{\mathbf{x}_t} s_\theta(\mathbf{x}_t, t) \cdot \nabla p_t(\mathbf{x}_t)d\mathbf{x}_t + Const \\
-                        &= \int_{\mathbf{x}_t} \| s_\theta(\mathbf{x}_t, t) \|_2^2 p_t(\mathbf{x}_t)d\mathbf{x}_t - 2 \int_{\mathbf{x}_t} s_\theta(\mathbf{x}_t, t) \cdot \nabla \left[ \int_{\mathbf{x}_0} p_0(\mathbf{x}_0)p_{t|0}(\mathbf{x}_t | \mathbf{x}_0)d\mathbf{x}_0 \right] d\mathbf{x}_t + Const \\
-                        &= \int_{\mathbf{x}_t} \| s_\theta(\mathbf{x}_t, t) \|_2^2 p_t(\mathbf{x}_t)d\mathbf{x}_t - 2 \int_{\mathbf{x}_t} s_\theta(\mathbf{x}_t, t) \cdot \left[ \int_{\mathbf{x}_0} p_0(\mathbf{x}_0)\nabla p_{t|0}(\mathbf{x}_t | \mathbf{x}_0)d\mathbf{x}_0 \right] d\mathbf{x}_t + Const \\
-                        &= \int_{\mathbf{x}_t} \| s_\theta(\mathbf{x}_t, t) \|_2^2 p_t(\mathbf{x}_t)d\mathbf{x}_t - 2 \int_{\mathbf{x}_t} s_\theta(\mathbf{x}_t, t) \cdot \left[ \int_{\mathbf{x}_0} p_0(\mathbf{x}_0)[\nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0)]p_{t|0}(\mathbf{x}_t | \mathbf{x}_0)d\mathbf{x}_0 \right] d\mathbf{x}_t + Const \\
-                        &= \int_{\mathbf{x}_t} \| s_\theta(\mathbf{x}_t, t) \|_2^2 p_t(\mathbf{x}_t)d\mathbf{x}_t - 2 \int_{\mathbf{x}_t} \int_{\mathbf{x}_0} p_0(\mathbf{x}_0)p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t) d\mathbf{x}_0 d\mathbf{x}_t + Const \\
-                        &= \mathbb{E}_{\mathbf{x}_t} \left[ \| s_\theta(\mathbf{x}_t, t) \|_2^2 \right] - 2 \cdot \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t) \right] + Const \\
-                        &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) \|_2^2 \right] - 2 \cdot \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t) \right] + \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const \\
-                        &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left\{ \| s_\theta(\mathbf{x}_t, t) \|_2^2 - 2 \cdot [\nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t)] + \| \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right\} + Const \\
-                        &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_{t}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const
-                        \end{aligned}$$
-                    </p>
-                    <p>Q.E.D.</p>
-                </div>
-
-                <h3>Tip: The Relationship between Score and Epsilon in Common Derivations</h3>
-                <p>Giving the obvious conclusion: <strong>the score is proportional to $\epsilon$</strong></p>
-                <p>The above tips actually illustrate that the training objective of DDPM is, in fact, to predict the score function.</p>
-
-                <h2>Discretization of Forward and Reverse Equations (Sampling)</h2>
-                
-                <p>SDEs describe the continuous evolution of random variables over time. However, in practical applications, we cannot perform computations in continuous time. Therefore, we need to discretize the SDE into a series of small time steps. The Euler-Maruyama method is the simplest and most commonly used method for SDE discretization.</p>
-
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃 <strong>Before discretization, note the following fact:</strong></p>
-                    <p class="text-center">$$d\mathbf{w} \sim \mathcal{N}(\mathbf{0}, |dt| \cdot \mathbf{I})$$</p>
-                    <p>Thus, we can consider:</p>
-                    <p class="text-center mb-0">$$d\mathbf{w} = \sqrt{|dt|} \cdot \mathbf{z} \text{, where } \mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$$</p>
-                </div>
-
-                <h3>Euler-Maruyama Discretization of the Forward SDE</h3>
-                <p>Let $dt$ be $1$, and consider two time points $\{t, t+1\}$. Then:</p>
-                
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃</p>
-                    <p class="text-center overflow-x-auto mb-0">
-                        $$\begin{aligned}
-                        \mathbf{x}_{t+1} &= \mathbf{x}_t + \mathbf{f}(\mathbf{x}_t, t) \cdot 1 + \mathbf{G}(\mathbf{x}_t, t)\sqrt{1}\mathbf{z}_t \\
-                        &= \mathbf{x}_t + \mathbf{f}(\mathbf{x}_t, t) + \mathbf{G}(\mathbf{x}_t, t)\mathbf{z}_t
-                        \end{aligned}$$
-                    </p>
-                </div>
-
-                <h3>Euler-Maruyama Discretization of the Reverse SDE</h3>
-                <p>Let $dt$ be $-1$, and consider two time points $\{t, t-1\}$. The Reverse SDE can be discretized as:</p>
-
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃</p>
-                    <p class="text-center overflow-x-auto mb-0">
-                        $$\begin{aligned}
-                        \mathbf{x}_{t-1} &= \mathbf{x}_t + \left[ \mathbf{f}(\mathbf{x}_t, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}_t, t)\mathbf{G}(\mathbf{x}_t, t)^T) - \mathbf{G}(\mathbf{x}_t, t)\mathbf{G}(\mathbf{x}_t, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] \cdot (-1) + \mathbf{G}(\mathbf{x}_t, t)\sqrt{|-1|}\mathbf{z}_t \\
-                        &= \mathbf{x}_t - \left[ \mathbf{f}(\mathbf{x}_t, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}_t, t)\mathbf{G}(\mathbf{x}_t, t)^T) - \mathbf{G}(\mathbf{x}_t, t)\mathbf{G}(\mathbf{x}_t, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] + \mathbf{G}(\mathbf{x}_t, t)\mathbf{z}_t
-                        \end{aligned}$$
-                    </p>
-                </div>
-
-                <p>Of course, there are many other discretization methods. As long as they are equivalent to the SDE in the limit, they should all be meaningful.</p>
-
-                <h2>SDE Practical Case Study</h2>
-
-                <h3>Concise Derivation of DDPM</h3>
-                
-                <p>Let $\mathbf{f}(\mathbf{x}, t) = (\sqrt{1 - \beta_t} - 1)\mathbf{x}$ and $\mathbf{G}(\mathbf{x}, t) = \sqrt{\beta_t}$</p>
-
-                <p>Then the forward SDE is:</p>
-                <p class="text-center">$$d\mathbf{x} = (\sqrt{1 - \beta_t} - 1)\mathbf{x}dt + \sqrt{\beta_t}d\mathbf{w}$$</p>
-
-                <p>After discretization, it becomes:</p>
-                <p class="text-center">$$\mathbf{x}_{t+1} = \sqrt{1 - \beta_t}\mathbf{x}_t + \sqrt{\beta_t}\mathbf{z}_t$$</p>
-
-                <p>Subsequently, the reverse SDE is:</p>
-                <p class="text-center">$$d\mathbf{x} = (\sqrt{1 - \beta_t}\mathbf{x} - \mathbf{x} - \beta_t \mathbf{s}_\theta(\mathbf{x}, t))dt + \sqrt{\beta_t}d\mathbf{\bar{w}}$$</p>
-
-                <p>After discretization, it becomes:</p>
-                <p class="text-center">$$\mathbf{x}_{t-1} = (2 - \sqrt{1 - \beta_t})\mathbf{x}_t + \beta_t \mathbf{s}_\theta(\mathbf{x}, t) + \sqrt{\beta_t}\mathbf{z}_t$$</p>
-
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6 my-6">
-                    <p class="mt-0 font-bold">Note that this formula differs from the original DDPM formula, but:</p>
-                    <ol class="mb-0">
-                        <li>They are equivalent when $\beta_t \ll 1$</li>
-                        <li>Both dynamics converge to $p_t(\mathbf{x})$</li>
-                    </ol>
-                </div>
-
-                <p>At this point, our understanding and summary of discretization are largely complete. Naturally, there are many other discretization methods with varying properties, which introduce a multitude of samplers. We will not expand on them here.</p>
-            </div>
                 <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle Dark Mode">
                     <svg class="w-5 h-5 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     <svg class="w-5 h-5 block dark:hidden text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
@@ -196,8 +52,11 @@
                 </button>
             </div>
             <div class="flex items-center space-x-6 text-sm font-medium text-gray-600 dark:text-gray-400">
-                <a href="../index.html" class="nav-link text-blue-600 dark:text-blue-400">
+                <a href="../index.html" class="nav-link hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                     <span class="lang-en">Home</span><span class="lang-zh">首页</span>
+                </a>
+                <a href="../notes.html" class="nav-link text-blue-600 dark:text-blue-400">
+                    <span class="lang-en">Notes</span><span class="lang-zh">笔记</span>
                 </a>
             </div>
         </nav>
@@ -296,7 +155,6 @@
                         &= \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt + (\nabla \phi)^T\mathbf{G}d\mathbf{w}
                         \end{aligned}$$
                     </p>
-                    <p>然后我们就可以对上式进行积分（求期望）了：</p>
                     <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right] + \mathbb{E}[(\nabla \phi)^T\mathbf{G}d\mathbf{w}]$$</p>
                     <p>根据布朗运动性质，第二项为 0，所以</p>
                     <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right]$$</p>
@@ -473,15 +331,15 @@
                         &= \mathbb{E}_{\mathbf{x}_t} \left[ \| s_\theta(\mathbf{x}_t, t) \|_2^2 \right] - 2 \cdot \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t) \right] + Const \\
                         &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) \|_2^2 \right] - 2 \cdot \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t) \right] + \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const \\
                         &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left\{ \| s_\theta(\mathbf{x}_t, t) \|_2^2 - 2 \cdot [\nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t)] + \| \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right\} + Const \\
-                        &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_{t}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const
+                        &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const
                         \end{aligned}$$
                     </p>
                     <p>证毕。</p>
                 </div>
 
-                <h3>Tip：Score 和常见推导中 epsilon 的关系</h3>
+                <h3>Tip：Score 和常见推导中 $\epsilon$ 的关系</h3>
                 <p>给出显然的结论：<strong>score 正比于 $\epsilon$</strong></p>
-                <p>上述 tips 其实说明了，DDPM 的训练目标其实就是预测 score function。</p>
+                <p>上述 tip 其实说明了，DDPM 的训练目标其实就是预测 score function。</p>
 
                 <h2>正反方程的离散化 (Sampling)</h2>
                 
@@ -625,7 +483,7 @@
                 <p>经过这些梳理之后，我们发现：上述知识是理解生成模型的钥匙，没有这些，一定读不懂相关的理论和论文。</p>
             </div>
             </div>
-            
+
             <div class="lang-en">
                 <p>It has already been several years since I started working on generative models. Recently, out of necessity, I put together a summary of the fundamental mathematical derivations for SDEs and ODEs used in diffusion models. Although diffusion models have been around for a while, they remain highly popular, with newcomers constantly joining the field. I hope this summary proves helpful to those who need it.</p>
 
@@ -702,7 +560,6 @@
                         &= \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt + (\nabla \phi)^T\mathbf{G}d\mathbf{w}
                         \end{aligned}$$
                     </p>
-                    <p>We can now take the expectation of the above equation:</p>
                     <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right] + \mathbb{E}[(\nabla \phi)^T\mathbf{G}d\mathbf{w}]$$</p>
                     <p>Due to the properties of Brownian motion, the second term evaluates to 0, hence:</p>
                     <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right]$$</p>
@@ -835,7 +692,7 @@
                 <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 my-6">
                     <p class="mt-0 mb-2">🎃 <strong>Definition of the score function:</strong></p>
                     <p class="text-center">$$s(\mathbf{x}, t) = \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$$</p>
-                    <p class="mb-0">Our goal is now very clear: train a network to predict $s_\theta(\mathbf{x}, t)$ such that $s_\theta(\mathbf{x}, t) \approx s(\mathbf{x}, t)$.</p>
+                    <p class="mb-0">Our goal is now very clear: train a network to predict a term $s_\theta(\mathbf{x}, t)$ such that $s_\theta(\mathbf{x}, t) \approx s(\mathbf{x}, t)$.</p>
                 </div>
 
                 <h3>What to do without Ground Truth?</h3>
@@ -879,7 +736,7 @@
                         &= \mathbb{E}_{\mathbf{x}_t} \left[ \| s_\theta(\mathbf{x}_t, t) \|_2^2 \right] - 2 \cdot \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t) \right] + Const \\
                         &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) \|_2^2 \right] - 2 \cdot \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t) \right] + \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const \\
                         &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left\{ \| s_\theta(\mathbf{x}_t, t) \|_2^2 - 2 \cdot [\nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \cdot s_\theta(\mathbf{x}_t, t)] + \| \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right\} + Const \\
-                        &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_{t}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const
+                        &= \mathbb{E}_{\mathbf{x}_0}\mathbb{E}_{\mathbf{x}_t|\mathbf{x}_0} \left[ \| s_\theta(\mathbf{x}_t, t) - \nabla \log p_{t|0}(\mathbf{x}_t | \mathbf{x}_0) \|_2^2 \right] + Const
                         \end{aligned}$$
                     </p>
                     <p>Q.E.D.</p>
@@ -887,7 +744,7 @@
 
                 <h3>Tip: The Relationship Between Score and Epsilon in Common Derivations</h3>
                 <p>Giving the obvious conclusion: <strong>the score is proportional to $\epsilon$</strong></p>
-                <p>The above tips actually illustrate that the training objective of DDPM is fundamentally to predict the score function.</p>
+                <p>The above tip actually illustrates that the training objective of DDPM is fundamentally to predict the score function.</p>
 
                 <h2>Discretization of Forward and Reverse Equations (Sampling)</h2>
                 
@@ -1029,7 +886,6 @@
 
                 <h2>Conclusion</h2>
                 <p>After this review, we find that the aforementioned knowledge is the key to understanding generative models. Without this foundation, it is impossible to comprehend the related theories and papers.</p>
-            </div>
             </div>
         </article>
         </main>
