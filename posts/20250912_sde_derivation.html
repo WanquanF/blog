@@ -359,59 +359,59 @@
             </div>
             
             <div class="lang-en">
-                <p>Unknowingly, several years have passed since I started working in the generative direction. Recently, due to some needs, I compiled a summary of the basic mathematical derivations of SDE/ODE used in diffusion models. Although diffusion models have been around for a while, they remain highly popular, with newcomers constantly joining the field. I hope these summaries can help those in need.</p>
+                <p>It has already been several years since I started working on generative models. Recently, out of necessity, I put together a summary of the fundamental mathematical derivations for SDEs and ODEs used in diffusion models. Although diffusion models have been around for a while, they remain highly popular, with newcomers constantly joining the field. I hope this summary proves helpful to those who need it.</p>
 
-                <h2>SDE as an Academic Course</h2>
+                <h2>SDE as a University Course</h2>
                 
-                <h3>[Which course does it belong to?]</h3>
-                <p>SDE stands for Stochastic Differential Equations, which corresponds to the course of the same name.</p>
+                <h3>[Which Course Does It Belong To?]</h3>
+                <p>SDE stands for Stochastic Differential Equations, which is typically taught as a course under the same name.</p>
                 
-                <h3>[What are the prerequisite courses?]</h3>
-                <p>Prerequisite courses include:</p>
+                <h3>[What Are the Prerequisite Courses?]</h3>
+                <p>The prerequisites include:</p>
                 <ul>
-                    <li><strong>Fundamental courses</strong>: Mathematical Analysis (Calculus), Linear Algebra</li>
-                    <li><strong>Probability direction</strong>: Probability Theory, Stochastic Processes</li>
-                    <li><strong>Equation related</strong>: Ordinary Differential Equations (ODE), Partial Differential Equations (PDE)</li>
-                    <li><strong>Physics courses</strong> (as an analogy): Non-equilibrium Statistical Mechanics. It is indeed difficult to master them all, but fortunately, we can look them up as we use them.</li>
+                    <li><strong>Foundational Courses</strong>: Mathematical Analysis (Calculus), Linear Algebra</li>
+                    <li><strong>Probability</strong>: Probability Theory, Stochastic Processes</li>
+                    <li><strong>Differential Equations</strong>: Ordinary Differential Equations (ODEs), Partial Differential Equations (PDEs)</li>
+                    <li><strong>Physics (for intuition)</strong>: Non-equilibrium Statistical Mechanics. Mastering all of these is undoubtedly challenging, but fortunately, we can learn and reference them as needed.</li>
                 </ul>
 
-                <h3>[Classic SDE Textbooks & What they roughly cover]</h3>
-                <p>Evans's <em>An Introduction to Stochastic Differential Equations</em> (<a href="https://math.berkeley.edu/~evans/SDE.course.pdf" target="_blank">pdf link</a>) is excellent. It thoroughly explains SDE while greatly simplifying the reliance on prerequisite knowledge. For SDE practitioners in the industry, it can be used as an authoritative reference. The contents roughly include:</p>
+                <h3>[Classic SDE Textbooks & Their Coverage]</h3>
+                <p>Evans's <em>An Introduction to Stochastic Differential Equations</em> (<a href="https://math.berkeley.edu/~evans/SDE.course.pdf" target="_blank">PDF link</a>) is excellent. It thoroughly explains SDEs while greatly minimizing the reliance on prerequisite knowledge. For industry practitioners using SDEs, it serves as an authoritative reference. The contents primarily cover:</p>
                 <ul>
-                    <li>Definition, properties, and construction of Brownian motion</li>
-                    <li>Stochastic integration, Ito's formula</li>
-                    <li>Definition of stochastic differential equations, existence, and uniqueness of solutions. The classic contents roughly cover these foundational theories that are self-consistent, without delving into the application of SDEs in specific fields or their deeper properties.</li>
+                    <li>The definition, properties, and construction of Brownian motion</li>
+                    <li>Stochastic integration and Ito's formula</li>
+                    <li>The definition of stochastic differential equations, as well as the existence and uniqueness of their solutions. These classic textbooks cover the self-consistent foundational theories, but they generally do not delve into the application of SDEs in specific fields or their more advanced properties.</li>
                 </ul>
 
-                <h3>[Is what's covered in textbooks enough for us? What needs to be supplemented?]</h3>
-                <p>Obviously, textbooks are not enough. Knowing "what an SDE is" is just the beginning and still cannot answer the question of "how to apply SDEs to generative models." From a chronological perspective, Brownian motion was derived by Einstein in 1905 and summarized into mathematical theory by Wiener in 1920; Kiyoshi Ito, the most important contributor to SDE theory, passed away in 2008; the concept of diffusion models was proposed in 2015 and popularized around 2020. In addition to classic textbooks, many extra knowledge points need to be supplemented. Here are some examples:</p>
+                <h3>[Are Textbooks Enough? What Else Do We Need?]</h3>
+                <p>Obviously, textbooks alone are not enough. Knowing "what an SDE is" is merely the beginning; it doesn't answer "how to apply SDEs to generative models." Chronologically, Brownian motion was derived by Einstein in 1905 and formalized into a mathematical theory by Wiener in 1920. Kiyoshi Ito, the most prominent contributor to SDE theory, passed away in 2008. Meanwhile, the concept of diffusion models was proposed in 2015 and widely popularized around 2020. Therefore, beyond classic textbooks, much modern knowledge must be supplemented. Here are a few examples:</p>
                 <ul>
                     <li>Langevin Dynamics (1908)</li>
                     <li>Fokker-Planck Equation (1917)</li>
                     <li>Reverse Ito SDE (1982)</li>
                     <li>Score Matching (2005)</li>
-                    <li>... ... Of course, there is also a lot of modern knowledge, such as DDPM, DDIM, and Flow Matching, which belong to our era.</li>
+                    <li>... And, of course, there is a wealth of modern knowledge, such as DDPM, DDIM, and Flow Matching, which belong entirely to the current era of generative AI.</li>
                 </ul>
-                <p>Let's unfold these bit by bit later.</p>
+                <p>Let's unfold these concepts step by step.</p>
 
                 <h2>Forward SDE (Forward Modeling)</h2>
                 <p>Generally, the equation we study takes the following form:</p>
                 <p class="text-center">$$d\mathbf{x} = \mathbf{f}(\mathbf{x},t)dt + \mathbf{G}(\mathbf{x},t)d\mathbf{w}$$</p>
-                <p>where $\mathbf{w}$ is the <a href="https://en.wikipedia.org/wiki/Wiener_process" target="_blank">Wiener process</a>, $\mathbf{f}: \mathbb{R}^N \times [0, T] \to \mathbb{R}^N$, and $\mathbf{G}: \mathbb{R}^N \times [0, T] \to \mathbb{R}^{N \times N}$. Note that $\mathbf{x}$ also varies with $t$, forming a continuous sequence of random variables $\mathbf{x}(t)$, or denoted as $\mathbf{x}_t$. For convenience, it is usually just written as $\mathbf{x}$. Typically, at the two endpoints of the interval $t \in [0, T]$, $\mathbf{x}_0 \sim p_0(\mathbf{x}) = p_{data}(\mathbf{x})$ and $\mathbf{x}_T \sim p_T(\mathbf{x})$ are the sample distribution and the pure noise distribution, respectively. (Some papers use different notations, such as Flow Matching, but we will forcefully unify the notation in the context of this document.)</p>
+                <p>where $\mathbf{w}$ is the <a href="https://en.wikipedia.org/wiki/Wiener_process" target="_blank">Wiener process</a>, $\mathbf{f}: \mathbb{R}^N \times [0, T] \to \mathbb{R}^N$, and $\mathbf{G}: \mathbb{R}^N \times [0, T] \to \mathbb{R}^{N \times N}$. Note that $\mathbf{x}$ also varies with $t$, forming a continuous sequence of random variables $\mathbf{x}(t)$, often denoted as $\mathbf{x}_t$. For convenience, we will simply write it as $\mathbf{x}$. Typically, at the endpoints of the interval $t \in [0, T]$, $\mathbf{x}_0 \sim p_0(\mathbf{x}) = p_{data}(\mathbf{x})$ and $\mathbf{x}_T \sim p_T(\mathbf{x})$ represent the data distribution and the pure noise distribution, respectively. (Some papers, such as those on Flow Matching, use different notations, but we will standardize the notation throughout this document.)</p>
                 
-                <p>The basis for targeting this form as our research object:</p>
+                <p>The rationale for focusing on this specific form is twofold:</p>
                 <ol>
-                    <li>The definition of SDE on Page 77 of Evans takes this form.</li>
-                    <li>The definition of SDE in Eq-3.3 of the classic paper Reverse SDE (1982) also takes this form.</li>
+                    <li>The definition of an SDE on Page 77 of Evans's book uses this form.</li>
+                    <li>The definition of an SDE in Eq. 3.3 of the classic paper <em>Reverse SDE</em> (1982) also adopts this form.</li>
                 </ol>
                 
-                <p>Therefore, although common theories on diffusion models adopt simpler forms, such as $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + g(t)d\mathbf{w}$, or even $d\mathbf{x} = \mathbf{v}(\mathbf{x}, t)dt$, we still study a more general form. This might seem more complicated at first glance, but it actually simplifies things, allowing us to easily borrow necessary techniques from classic derivations.</p>
+                <p>Therefore, although popular theories on diffusion models often adopt simpler forms, such as $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + g(t)d\mathbf{w}$, or even $d\mathbf{x} = \mathbf{v}(\mathbf{x}, t)dt$, we will study the more general form. While it might seem more complicated at first glance, it actually simplifies the process by allowing us to easily borrow essential techniques from classic mathematical derivations.</p>
 
                 <h2>Marginal Distribution: Fokker-Planck Equation</h2>
-                <p>The stochastic differential equation $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ describes the relationship of the random variable $\mathbf{x}$ with respect to time $t$. We first introduce a classic equation called the Fokker-Planck equation. Suppose the probability density function of $\mathbf{x}(t)$ is $p_t(\mathbf{x})$, which is usually called the <strong>marginal density</strong>. Then the equation for the marginal density $p_t(\mathbf{x})$ induced by the above SDE is:</p>
+                <p>The stochastic differential equation $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ describes the evolution of the random variable $\mathbf{x}$ over time $t$. We first introduce a classic equation known as the Fokker-Planck equation. Suppose the probability density function of $\mathbf{x}(t)$ is $p_t(\mathbf{x})$, typically referred to as the <strong>marginal density</strong>. The evolution of this marginal density $p_t(\mathbf{x})$, as induced by the aforementioned SDE, is governed by:</p>
                 <p class="text-center">$$\frac{\partial p}{\partial t} = -\nabla \cdot [\mathbf{f}(\mathbf{x}, t)p(\mathbf{x}, t)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T p(\mathbf{x}, t))]$$</p>
-                <p>This equation is called the Fokker-Planck equation.</p>
-                <p>The significance of this reduction is to transform the evolution of the random variable $\mathbf{x}_t$ over time into the evolution of the marginal density $p_t$ over time. Why make this transformation? Because we usually sample in the form of random variables, but the underlying mathematical principles are mostly described in the form of probability density functions. Therefore, this transformation is necessary.</p>
+                <p>This is known as the Fokker-Planck equation.</p>
+                <p>The significance of this formulation lies in transforming the temporal evolution of the random variable $\mathbf{x}_t$ into the temporal evolution of its marginal density $p_t$. Why is this transformation necessary? While we typically sample discrete random variables in practice, the underlying mathematical principles are largely described using probability density functions. Thus, this bridge is essential.</p>
             </div>
         </article>
         </main>
