@@ -17,21 +17,27 @@
     <style>
         /* KaTeX Custom Display Style */
         .katex-display {
-            background-color: #f0fdf4; /* Tailwind green-50 */
-            border: 1px solid #dcfce7; /* Tailwind green-100 */
-            border-radius: 0.75rem; /* rounded-xl */
-            padding: 1.25rem;
-            margin: 1.5rem 0 !important;
             overflow-x: auto;
             overflow-y: hidden;
-        }
-        .dark .katex-display {
-            background-color: rgba(253, 230, 138, 0.05); /* Warm dark mode: amber-200 at 5% */
-            border-color: rgba(245, 158, 11, 0.2); /* Warm dark mode: amber-500 at 20% */
+            margin: 1.5rem 0 !important;
         }
         .katex-display > .katex {
             text-align: center;
             white-space: normal;
+        }
+        
+        /* Proof Box Style */
+        .proof-box {
+            background-color: #f0fdf4; /* Tailwind green-50 */
+            border: 1px solid #dcfce7; /* Tailwind green-100 */
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1.5rem;
+            margin: 2rem 0;
+            transition: all 0.3s;
+        }
+        .dark .proof-box {
+            background-color: rgba(236, 72, 153, 0.12); /* Warm pinkish dark mode background */
+            border-color: rgba(236, 72, 153, 0.3); /* Slightly brighter pink border */
         }
 
         /* Auto-numbering for headings to look like a paper */
@@ -388,54 +394,56 @@
                 <p>这个方程就叫做 Fokker-Planck 方程。</p>
                 <p>这个化归的意义在于，把随机变量 $\mathbf{x}_t$ 随时间的演变，转化成边缘密度 $p_t$ 随时间的演变。为什么要做这个转变呢？因为我们通常采样都是以随机变量的形式，但是背后的数学原理很多是以概率密度函数的形式来进行描述。所以这个转变是必要的。</p>
 
-                <p>✍️ <strong>证明：</strong></p>
-                <p>取一个任意的标量测试函数 $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$，不显式包含 $t$，且满足：光滑、支撑集有界。</p>
-                <p>然后我们关注函数 $\phi(\mathbf{x})$，下面将用两种方式计算它的「$\mathbb{E}$ & $\frac{\partial}{\partial t}$」的组合。</p>
-                
-                <p><strong>(1) 先计算期望，再求导数</strong></p>
-                <p>其期望为 $\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})p(\mathbf{x}, t)d\mathbf{x}$</p>
-                <p>再求导得 $\frac{d}{dt}\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x}$</p>
+                <div class="proof-box">
+                    <p>✍️ <strong>证明：</strong></p>
+                    <p>取一个任意的标量测试函数 $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$，不显式包含 $t$，且满足：光滑、支撑集有界。</p>
+                    <p>然后我们关注函数 $\phi(\mathbf{x})$，下面将用两种方式计算它的「$\mathbb{E}$ & $\frac{\partial}{\partial t}$」的组合。</p>
+                    
+                    <p><strong>(1) 先计算期望，再求导数</strong></p>
+                    <p>其期望为 $\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})p(\mathbf{x}, t)d\mathbf{x}$</p>
+                    <p>再求导得 $\frac{d}{dt}\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x}$</p>
 
-                <p><strong>(2) 先求导数，再求期望</strong></p>
-                <p>计算 $d\phi$ 需要用到 Ito's 公式，见 Evans 的 Page 72 中间的那个公式</p>
-                <p>我们有：$d\phi = \frac{\partial \phi}{\partial t}dt + (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$</p>
-                <p>因为 $\phi(\mathbf{x})$ 不显式包含 $t$，所以第一项为 0，进而</p>
-                <p class="text-center">$$d\phi = (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$</p>
-                <p>将 Forward SDE $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ 带进去，得到</p>
-                <p class="text-center">
-                    $$\begin{aligned}
-                    d\phi &= (\nabla \phi)^T (\mathbf{f}dt + \mathbf{G}d\mathbf{w}) + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt \\
-                    &= \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt + (\nabla \phi)^T\mathbf{G}d\mathbf{w}
-                    \end{aligned}$$
-                </p>
-                <p>然后我们就可以对上式进行积分（求期望）了：</p>
-                <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right] + \mathbb{E}[(\nabla \phi)^T\mathbf{G}d\mathbf{w}]$$</p>
-                <p>根据布朗运动性质，第二项为 0，所以</p>
-                <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right]$$</p>
-                <p>故</p>
-                <p class="text-center">
-                    $$\begin{aligned}
-                    \mathbb{E}\left[ \frac{d\phi}{dt} \right] &= \mathbb{E}\left[ (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right] \\
-                    &= \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}
-                    \end{aligned}$$
-                </p>
+                    <p><strong>(2) 先求导数，再求期望</strong></p>
+                    <p>计算 $d\phi$ 需要用到 Ito's 公式，见 Evans 的 Page 72 中间的那个公式</p>
+                    <p>我们有：$d\phi = \frac{\partial \phi}{\partial t}dt + (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$</p>
+                    <p>因为 $\phi(\mathbf{x})$ 不显式包含 $t$，所以第一项为 0，进而</p>
+                    <p class="text-center">$$d\phi = (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$</p>
+                    <p>将 Forward SDE $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ 带进去，得到</p>
+                    <p class="text-center">
+                        $$\begin{aligned}
+                        d\phi &= (\nabla \phi)^T (\mathbf{f}dt + \mathbf{G}d\mathbf{w}) + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt \\
+                        &= \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt + (\nabla \phi)^T\mathbf{G}d\mathbf{w}
+                        \end{aligned}$$
+                    </p>
+                    <p>然后我们就可以对上式进行积分（求期望）了：</p>
+                    <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right] + \mathbb{E}[(\nabla \phi)^T\mathbf{G}d\mathbf{w}]$$</p>
+                    <p>根据布朗运动性质，第二项为 0，所以</p>
+                    <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right]$$</p>
+                    <p>故</p>
+                    <p class="text-center">
+                        $$\begin{aligned}
+                        \mathbb{E}\left[ \frac{d\phi}{dt} \right] &= \mathbb{E}\left[ (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right] \\
+                        &= \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}
+                        \end{aligned}$$
+                    </p>
 
-                <p><strong>(3) 考虑到前面两步的计算结果，我们有：</strong></p>
-                <p class="text-center">$$\int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} = \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}$$</p>
-                <p>作为积分的核函数，我们不希望表达式里有 $\phi$ 的导数，所以通过分部积分法，将导数转移到 $p$ 上去</p>
-                <p class="text-center">$$\int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} = - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x}$$</p>
-                <p class="text-center">$$\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x} = \int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x}$$</p>
-                <p>所以我们得到</p>
-                <p class="text-center">
-                    $$\begin{aligned}
-                    \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} &= - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x} \\
-                    &= \int_{\mathbb{R}^N} \phi(\mathbf{x}) \left\{ -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T)) \right\} d\mathbf{x}
-                    \end{aligned}$$
-                </p>
+                    <p><strong>(3) 考虑到前面两步的计算结果，我们有：</strong></p>
+                    <p class="text-center">$$\int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} = \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}$$</p>
+                    <p>作为积分的核函数，我们不希望表达式里有 $\phi$ 的导数，所以通过分部积分法，将导数转移到 $p$ 上去</p>
+                    <p class="text-center">$$\int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} = - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x}$$</p>
+                    <p class="text-center">$$\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x} = \int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x}$$</p>
+                    <p>所以我们得到</p>
+                    <p class="text-center">
+                        $$\begin{aligned}
+                        \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} &= - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x} \\
+                        &= \int_{\mathbb{R}^N} \phi(\mathbf{x}) \left\{ -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T)) \right\} d\mathbf{x}
+                        \end{aligned}$$
+                    </p>
 
-                <p><strong>(4)</strong> 考虑到上式对任意的测试函数 $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$（不显式包含 $t$，且满足：光滑、支撑集有界）均成立，那么其实可以把积分号拆掉，把 $\phi(\mathbf{x})$ 也拿掉，于是就得到了我们想要的 Fokker-Planck 方程：</p>
-                <p class="text-center">$$\frac{\partial p(\mathbf{x}, t)}{\partial t} = -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))$$</p>
-                <p>证毕。</p>
+                    <p><strong>(4)</strong> 考虑到上式对任意的测试函数 $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$（不显式包含 $t$，且满足：光滑、支撑集有界）均成立，那么其实可以把积分号拆掉，把 $\phi(\mathbf{x})$ 也拿掉，于是就得到了我们想要的 Fokker-Planck 方程：</p>
+                    <p class="text-center">$$\frac{\partial p(\mathbf{x}, t)}{\partial t} = -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))$$</p>
+                    <p>证毕。</p>
+                </div>
 
                 <h2>Reverse SDE（反向 modeling）</h2>
                 <p>将随机微分方程 $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ 变成所谓的 reverse 形式，是扩散模型最重要的一件任务。</p>
@@ -446,73 +454,75 @@
                 <p>需要重点注意的事情是：<strong>能做到精准 reverse 的方程不是唯一的。接着往下看，后面我们可以看到，能成功将噪声分布 reverse 回数据分布的方程有无穷多个。</strong>只是上面这个方程，比较经典，也比较常用。</p>
                 <p>这里我们证明一下上面的方程是一个 reverse SDE（依赖于 Fokker-Planck 方程）：</p>
 
-                <p>✍️ <strong>证明：</strong></p>
-                <p>这个验证过程比较绕，需要将时间反转。具体地，令 $s = T - t$，</p>
-                <p>在上述关于 $t$ 的方程</p>
-                <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
-                <p>中，我们令</p>
-                <p class="text-center">$$\mathbf{m}(\mathbf{x}, t) = -\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$$</p>
-                <p>则上式变为</p>
-                <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) + \mathbf{m}(\mathbf{x}, t) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
-                <p>将上式转化为关于 $s$ 的方程（<strong>在原式中改写：$t \to T - s, dt \to -ds$，注意 $-ds$ 的负号不要忘了</strong>）</p>
-                <p class="text-center">
-                        $$\begin{aligned}
-                        d\mathbf{x}_s &= \left[ \mathbf{f}(\mathbf{x}, T - s) + \mathbf{m}(\mathbf{x}, T - s) \right] (-ds) + \mathbf{G}(\mathbf{x}, T - s) d\mathbf{\bar{w}} \\
-                        &= \left[ -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s) \right] ds + \mathbf{G}(\mathbf{x}, T - s) d\mathbf{\bar{w}}
-                        \end{aligned}$$
-                    </p>
-                <p>为了简便，记为：</p>
-                <p class="text-center">$$d\mathbf{x} = \mathbf{h}(\mathbf{x}, s)ds + \mathbf{K}(\mathbf{x}, s) d\mathbf{\bar{w}}$$</p>
-                <p>其中</p>
-                <p class="text-center">$$\mathbf{h}(\mathbf{x}, s) = -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s)$$</p>
-                <p class="text-center">$$\mathbf{K}(\mathbf{x}, s) = \mathbf{G}(\mathbf{x}, T - s)$$</p>
-                <p>此外，记 reverse SDE 的边缘分布为 $q(\mathbf{x}, s)$。</p>
-                <p>我们将从以下关系开始化归，最终证明上述的 $\mathbf{m}(\mathbf{x}, t)$ 是下述方程的一个解。对 $\forall \lambda \in [0, T]$：</p>
-                <p class="text-center">$$q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$$</p>
-                <p class="text-center">$$\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$$</p>
-                
-                <p>首先展开等号两侧的偏导项。</p>
-                <p><strong>1. 左侧</strong>，根据 Fokker-Planck 方程，并令 $\mathbf{D} = \mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T$：</p>
-                <p class="text-center">
-                        $$\begin{aligned}
-                        \left. \frac{\partial p}{\partial t} \right|_{t=\lambda} &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] \\
-                        &\quad + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))]
-                        \end{aligned}$$
-                    </p>
+                <div class="proof-box">
+                    <p>✍️ <strong>证明：</strong></p>
+                    <p>这个验证过程比较绕，需要将时间反转。具体地，令 $s = T - t$，</p>
+                    <p>在上述关于 $t$ 的方程</p>
+                    <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
+                    <p>中，我们令</p>
+                    <p class="text-center">$$\mathbf{m}(\mathbf{x}, t) = -\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$$</p>
+                    <p>则上式变为</p>
+                    <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) + \mathbf{m}(\mathbf{x}, t) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
+                    <p>将上式转化为关于 $s$ 的方程（<strong>在原式中改写：$t \to T - s, dt \to -ds$，注意 $-ds$ 的负号不要忘了</strong>）</p>
+                    <p class="text-center">
+                            $$\begin{aligned}
+                            d\mathbf{x}_s &= \left[ \mathbf{f}(\mathbf{x}, T - s) + \mathbf{m}(\mathbf{x}, T - s) \right] (-ds) + \mathbf{G}(\mathbf{x}, T - s) d\mathbf{\bar{w}} \\
+                            &= \left[ -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s) \right] ds + \mathbf{G}(\mathbf{x}, T - s) d\mathbf{\bar{w}}
+                            \end{aligned}$$
+                        </p>
+                    <p>为了简便，记为：</p>
+                    <p class="text-center">$$d\mathbf{x} = \mathbf{h}(\mathbf{x}, s)ds + \mathbf{K}(\mathbf{x}, s) d\mathbf{\bar{w}}$$</p>
+                    <p>其中</p>
+                    <p class="text-center">$$\mathbf{h}(\mathbf{x}, s) = -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s)$$</p>
+                    <p class="text-center">$$\mathbf{K}(\mathbf{x}, s) = \mathbf{G}(\mathbf{x}, T - s)$$</p>
+                    <p>此外，记 reverse SDE 的边缘分布为 $q(\mathbf{x}, s)$。</p>
+                    <p>我们将从以下关系开始化归，最终证明上述的 $\mathbf{m}(\mathbf{x}, t)$ 是下述方程的一个解。对 $\forall \lambda \in [0, T]$：</p>
+                    <p class="text-center">$$q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$$</p>
+                    <p class="text-center">$$\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$$</p>
+                    
+                    <p>首先展开等号两侧的偏导项。</p>
+                    <p><strong>1. 左侧</strong>，根据 Fokker-Planck 方程，并令 $\mathbf{D} = \mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T$：</p>
+                    <p class="text-center">
+                            $$\begin{aligned}
+                            \left. \frac{\partial p}{\partial t} \right|_{t=\lambda} &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] \\
+                            &\quad + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))]
+                            \end{aligned}$$
+                        </p>
 
-                <p><strong>2. 右侧</strong>，同样根据 Fokker-Planck 方程：</p>
-                <p class="text-center">
-                        $$\begin{aligned}
-                        - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda} &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)q(\mathbf{x}, T - \lambda)] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{K}(\mathbf{x}, T - \lambda)\mathbf{K}(\mathbf{x}, T - \lambda)^T q(\mathbf{x}, T - \lambda))] \\
-                        &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)q(\mathbf{x}, T - \lambda)] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T q(\mathbf{x}, T - \lambda))] \\
-                        &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)p(\mathbf{x}, \lambda)] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T p(\mathbf{x}, \lambda))] \\
-                        &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= \nabla \cdot [[-\mathbf{f}(\mathbf{x}, \lambda) - \mathbf{m}(\mathbf{x}, \lambda)]p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))]
-                        \end{aligned}$$
-                    </p>
+                    <p><strong>2. 右侧</strong>，同样根据 Fokker-Planck 方程：</p>
+                    <p class="text-center">
+                            $$\begin{aligned}
+                            - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda} &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)q(\mathbf{x}, T - \lambda)] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{K}(\mathbf{x}, T - \lambda)\mathbf{K}(\mathbf{x}, T - \lambda)^T q(\mathbf{x}, T - \lambda))] \\
+                            &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)q(\mathbf{x}, T - \lambda)] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T q(\mathbf{x}, T - \lambda))] \\
+                            &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)p(\mathbf{x}, \lambda)] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T p(\mathbf{x}, \lambda))] \\
+                            &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= \nabla \cdot [[-\mathbf{f}(\mathbf{x}, \lambda) - \mathbf{m}(\mathbf{x}, \lambda)]p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))]
+                            \end{aligned}$$
+                        </p>
 
-                <p><strong>3. 检验</strong> $\mathbf{m}(\mathbf{x}, t) = -\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$ 时 $\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$ 是否成立。此时：</p>
-                <p class="text-center">
-                        $$\begin{aligned}
-                        - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda} &= \nabla \cdot [[-\mathbf{f}(\mathbf{x}, \lambda) - \mathbf{m}(\mathbf{x}, \lambda)]p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot [\mathbf{m}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot \left[ \left( -\nabla \cdot \mathbf{D} - \mathbf{D}\frac{\nabla p}{p} \right) p(\mathbf{x}, \lambda) \right] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot \left[ -(\nabla \cdot \mathbf{D})p - \mathbf{D}(\nabla p) \right] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \nabla \cdot \left[ (\nabla \cdot \mathbf{D})p + \mathbf{D}(\nabla p) \right] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \nabla \cdot (\nabla \cdot (\mathbf{D}p)) - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= \left. \frac{\partial p}{\partial t} \right|_{t=\lambda}
-                        \end{aligned}$$
-                    </p>
-                <p>可以看到，此时条件是满足的。显然顺带可以推出 $q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$</p>
-                <p>证毕。</p>
+                    <p><strong>3. 检验</strong> $\mathbf{m}(\mathbf{x}, t) = -\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$ 时 $\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$ 是否成立。此时：</p>
+                    <p class="text-center">
+                            $$\begin{aligned}
+                            - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda} &= \nabla \cdot [[-\mathbf{f}(\mathbf{x}, \lambda) - \mathbf{m}(\mathbf{x}, \lambda)]p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot [\mathbf{m}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot \left[ \left( -\nabla \cdot \mathbf{D} - \mathbf{D}\frac{\nabla p}{p} \right) p(\mathbf{x}, \lambda) \right] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot \left[ -(\nabla \cdot \mathbf{D})p - \mathbf{D}(\nabla p) \right] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \nabla \cdot \left[ (\nabla \cdot \mathbf{D})p + \mathbf{D}(\nabla p) \right] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \nabla \cdot (\nabla \cdot (\mathbf{D}p)) - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= \left. \frac{\partial p}{\partial t} \right|_{t=\lambda}
+                            \end{aligned}$$
+                        </p>
+                    <p>可以看到，此时条件是满足的。显然顺带可以推出 $q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$</p>
+                    <p>证毕。</p>
+                </div>
             </div>
             
             <div class="lang-en">
@@ -570,52 +580,56 @@
                 <p>This is known as the Fokker-Planck equation.</p>
                 <p>The significance of this formulation lies in transforming the temporal evolution of the random variable $\mathbf{x}_t$ into the temporal evolution of its marginal density $p_t$. Why is this transformation necessary? While we typically sample discrete random variables in practice, the underlying mathematical principles are largely described using probability density functions. Thus, this bridge is essential.</p>
 
-                <p>✍️ <strong>Proof:</strong></p>
-                <p>Let us choose an arbitrary scalar test function $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$ that does not explicitly depend on $t$, and satisfies the conditions of being smooth and having compact support.</p>
-                <p>Focusing on the function $\phi(\mathbf{x})$, we will calculate the combination of its expectation $\mathbb{E}$ and time derivative $\frac{\partial}{\partial t}$ in two different ways.</p>
-                
-                <p><strong>(1) First take the expectation, then compute the derivative</strong></p>
-                <p>Its expectation is given by: $\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})p(\mathbf{x}, t)d\mathbf{x}$</p>
-                <p>Taking the derivative yields: $\frac{d}{dt}\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x}$</p>
+                <div class="proof-box">
+                    <p>✍️ <strong>Proof:</strong></p>
+                    <p>Let us choose an arbitrary scalar test function $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$ that does not explicitly depend on $t$, and satisfies the conditions of being smooth and having compact support.</p>
+                    <p>Focusing on the function $\phi(\mathbf{x})$, we will calculate the combination of its expectation $\mathbb{E}$ and time derivative $\frac{\partial}{\partial t}$ in two different ways.</p>
+                    
+                    <p><strong>(1) First take the expectation, then compute the derivative</strong></p>
+                    <p>Its expectation is given by: $\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})p(\mathbf{x}, t)d\mathbf{x}$</p>
+                    <p>Taking the derivative yields: $\frac{d}{dt}\mathbb{E}[\phi(\mathbf{x}(t))] = \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x}$</p>
 
-                <p><strong>(2) First compute the derivative, then take the expectation</strong></p>
-                <p>To calculate $d\phi$, we need to apply Ito's formula (refer to the equation in the middle of Page 72 in Evans's book).</p>
-                <p>We have: $d\phi = \frac{\partial \phi}{\partial t}dt + (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$</p>
-                <p>Since $\phi(\mathbf{x})$ does not explicitly contain $t$, the first term is 0, which leads to:</p>
-                <p class="text-center">$$d\phi = (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$</p>
-                <p>Substituting the Forward SDE $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ into the equation, we get:</p>
-                <p class="text-center">
-                    $$d\phi = (\nabla \phi)^T (\mathbf{f}dt + \mathbf{G}d\mathbf{w}) + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$<br>
-                    $$= \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt + (\nabla \phi)^T\mathbf{G}d\mathbf{w}$$
-                </p>
-                <p>We can now take the expectation of the above equation:</p>
-                <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right] + \mathbb{E}[(\nabla \phi)^T\mathbf{G}d\mathbf{w}]$$</p>
-                <p>Due to the properties of Brownian motion, the second term evaluates to 0, hence:</p>
-                <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right]$$</p>
-                <p>Therefore,</p>
-                <p class="text-center">
-                    $$\begin{aligned}
-                    \mathbb{E}\left[ \frac{d\phi}{dt} \right] &= \mathbb{E}\left[ (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right] \\
-                    &= \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}
-                    \end{aligned}$$
-                </p>
+                    <p><strong>(2) First compute the derivative, then take the expectation</strong></p>
+                    <p>To calculate $d\phi$, we need to apply Ito's formula (refer to the equation in the middle of Page 72 in Evans's book).</p>
+                    <p>We have: $d\phi = \frac{\partial \phi}{\partial t}dt + (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$</p>
+                    <p>Since $\phi(\mathbf{x})$ does not explicitly contain $t$, the first term is 0, which leads to:</p>
+                    <p class="text-center">$$d\phi = (\nabla \phi)^T d\mathbf{x} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt$$</p>
+                    <p>Substituting the Forward SDE $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ into the equation, we get:</p>
+                    <p class="text-center">
+                        $$\begin{aligned}
+                        d\phi &= (\nabla \phi)^T (\mathbf{f}dt + \mathbf{G}d\mathbf{w}) + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right)dt \\
+                        &= \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt + (\nabla \phi)^T\mathbf{G}d\mathbf{w}
+                        \end{aligned}$$
+                    </p>
+                    <p>We can now take the expectation of the above equation:</p>
+                    <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right] + \mathbb{E}[(\nabla \phi)^T\mathbf{G}d\mathbf{w}]$$</p>
+                    <p>Due to the properties of Brownian motion, the second term evaluates to 0, hence:</p>
+                    <p class="text-center">$$\mathbb{E}[d\phi] = \mathbb{E}\left[ \left( (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right)dt \right]$$</p>
+                    <p>Therefore,</p>
+                    <p class="text-center">
+                        $$\begin{aligned}
+                        \mathbb{E}\left[ \frac{d\phi}{dt} \right] &= \mathbb{E}\left[ (\nabla \phi)^T\mathbf{f} + \frac{1}{2}\text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \right] \\
+                        &= \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}
+                        \end{aligned}$$
+                    </p>
 
-                <p><strong>(3) Combining the results from the previous two steps, we have:</strong></p>
-                <p class="text-center">$$\int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} = \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}$$</p>
-                <p>As the kernel function of the integral, we prefer not to have derivatives of $\phi$ in the expression. Thus, we use integration by parts to transfer the derivatives onto $p$:</p>
-                <p class="text-center">$$\int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} = - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x}$$</p>
-                <p class="text-center">$$\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x} = \int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x}$$</p>
-                <p>So we obtain:</p>
-                <p class="text-center">
-                    $$\begin{aligned}
-                    \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} &= - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x} \\
-                    &= \int_{\mathbb{R}^N} \phi(\mathbf{x}) \left\{ -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T)) \right\} d\mathbf{x}
-                    \end{aligned}$$
-                </p>
+                    <p><strong>(3) Combining the results from the previous two steps, we have:</strong></p>
+                    <p class="text-center">$$\int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} = \int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x}$$</p>
+                    <p>As the kernel function of the integral, we prefer not to have derivatives of $\phi$ in the expression. Thus, we use integration by parts to transfer the derivatives onto $p$:</p>
+                    <p class="text-center">$$\int_{\mathbb{R}^N} (\nabla \phi)^T\mathbf{f} \cdot p(\mathbf{x}, t)d\mathbf{x} = - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x}$$</p>
+                    <p class="text-center">$$\int_{\mathbb{R}^N} \text{Tr}\left(\mathbf{G}\mathbf{G}^T \nabla\nabla^T \phi\right) \cdot p(\mathbf{x}, t)d\mathbf{x} = \int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x}$$</p>
+                    <p>So we obtain:</p>
+                    <p class="text-center">
+                        $$\begin{aligned}
+                        \int_{\mathbb{R}^N} \phi(\mathbf{x})\frac{\partial p(\mathbf{x}, t)}{\partial t}d\mathbf{x} &= - \int_{\mathbb{R}^N} \phi(\mathbf{x})(\nabla \cdot (p\mathbf{f}))d\mathbf{x} + \frac{1}{2}\int_{\mathbb{R}^N} \phi(\mathbf{x})\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))d\mathbf{x} \\
+                        &= \int_{\mathbb{R}^N} \phi(\mathbf{x}) \left\{ -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T)) \right\} d\mathbf{x}
+                        \end{aligned}$$
+                    </p>
 
-                <p><strong>(4)</strong> Given that the above equation holds for any test function $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$ (which does not explicitly contain $t$, is smooth, and has compact support), we can essentially remove the integral signs and the function $\phi(\mathbf{x})$. This yields the desired Fokker-Planck equation:</p>
-                <p class="text-center">$$\frac{\partial p(\mathbf{x}, t)}{\partial t} = -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))$$</p>
-                <p>Q.E.D.</p>
+                    <p><strong>(4)</strong> Given that the above equation holds for any test function $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$ (which does not explicitly contain $t$, is smooth, and has compact support), we can essentially remove the integral signs and the function $\phi(\mathbf{x})$. This yields the desired Fokker-Planck equation:</p>
+                    <p class="text-center">$$\frac{\partial p(\mathbf{x}, t)}{\partial t} = -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))$$</p>
+                    <p>Q.E.D.</p>
+                </div>
 
                 <h2>Reverse SDE (Reverse Modeling)</h2>
                 <p>Transforming the stochastic differential equation $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ into its so-called reverse form is one of the most critical tasks in diffusion models.</p>
@@ -626,73 +640,75 @@
                 <p>An important point to emphasize is: <strong>The equation that achieves an exact reverse process is not unique. As we will see later, there are infinitely many equations capable of successfully reversing the noise distribution back to the data distribution.</strong> The equation presented above is simply the most classic and commonly used one.</p>
                 <p>Here, we provide a proof that the above equation indeed constitutes a valid reverse SDE (relying on the Fokker-Planck equation):</p>
 
-                <p>✍️ <strong>Proof:</strong></p>
-                <p>This verification process is somewhat convoluted as it involves time reversal. Specifically, let $s = T - t$.</p>
-                <p>In the aforementioned equation with respect to $t$:</p>
-                <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
-                <p>We define</p>
-                <p class="text-center">$$\mathbf{m}(\mathbf{x}, t) = -\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$$</p>
-                <p>Thus, the equation simplifies to:</p>
-                <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) + \mathbf{m}(\mathbf{x}, t) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
-                <p>Next, we transform this into an equation with respect to $s$ (<strong>In the original equation, substitute: $t \to T - s, dt \to -ds$. Be careful not to omit the negative sign of $-ds$</strong>):</p>
-                <p class="text-center">
-                        $$\begin{aligned}
-                        d\mathbf{x}_s &= \left[ \mathbf{f}(\mathbf{x}, T - s) + \mathbf{m}(\mathbf{x}, T - s) \right] (-ds) + \mathbf{G}(\mathbf{x}, T - s) d\mathbf{\bar{w}} \\
-                        &= \left[ -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s) \right] ds + \mathbf{G}(\mathbf{x}, T - s) d\mathbf{\bar{w}}
-                        \end{aligned}$$
-                    </p>
-                <p>For convenience, we denote this as:</p>
-                <p class="text-center">$$d\mathbf{x} = \mathbf{h}(\mathbf{x}, s)ds + \mathbf{K}(\mathbf{x}, s) d\mathbf{\bar{w}}$$</p>
-                <p>Where</p>
-                <p class="text-center">$$\mathbf{h}(\mathbf{x}, s) = -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s)$$</p>
-                <p class="text-center">$$\mathbf{K}(\mathbf{x}, s) = \mathbf{G}(\mathbf{x}, T - s)$$</p>
-                <p>Additionally, let the marginal distribution of the reverse SDE be $q(\mathbf{x}, s)$.</p>
-                <p>We will proceed by reducing the following relationship, ultimately proving that the aforementioned $\mathbf{m}(\mathbf{x}, t)$ is a solution to the equation below. For $\forall \lambda \in [0, T]$:</p>
-                <p class="text-center">$$q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$$</p>
-                <p class="text-center">$$\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$$</p>
-                
-                <p>First, we expand the partial derivative terms on both sides of the equation.</p>
-                <p><strong>1. Left side</strong>: According to the Fokker-Planck equation, and letting $\mathbf{D} = \mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T$:</p>
-                <p class="text-center">
-                        $$\begin{aligned}
-                        \left. \frac{\partial p}{\partial t} \right|_{t=\lambda} &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] \\
-                        &\quad + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))]
-                        \end{aligned}$$
-                    </p>
+                <div class="proof-box">
+                    <p>✍️ <strong>Proof:</strong></p>
+                    <p>This verification process is somewhat convoluted as it involves time reversal. Specifically, let $s = T - t$.</p>
+                    <p>In the aforementioned equation with respect to $t$:</p>
+                    <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
+                    <p>We define</p>
+                    <p class="text-center">$$\mathbf{m}(\mathbf{x}, t) = -\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$$</p>
+                    <p>Thus, the equation simplifies to:</p>
+                    <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) + \mathbf{m}(\mathbf{x}, t) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
+                    <p>Next, we transform this into an equation with respect to $s$ (<strong>In the original equation, substitute: $t \to T - s, dt \to -ds$. Be careful not to omit the negative sign of $-ds$</strong>):</p>
+                    <p class="text-center">
+                            $$\begin{aligned}
+                            d\mathbf{x}_s &= \left[ \mathbf{f}(\mathbf{x}, T - s) + \mathbf{m}(\mathbf{x}, T - s) \right] (-ds) + \mathbf{G}(\mathbf{x}, T - s) d\mathbf{\bar{w}} \\
+                            &= \left[ -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s) \right] ds + \mathbf{G}(\mathbf{x}, T - s) d\mathbf{\bar{w}}
+                            \end{aligned}$$
+                        </p>
+                    <p>For convenience, we denote this as:</p>
+                    <p class="text-center">$$d\mathbf{x} = \mathbf{h}(\mathbf{x}, s)ds + \mathbf{K}(\mathbf{x}, s) d\mathbf{\bar{w}}$$</p>
+                    <p>Where</p>
+                    <p class="text-center">$$\mathbf{h}(\mathbf{x}, s) = -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s)$$</p>
+                    <p class="text-center">$$\mathbf{K}(\mathbf{x}, s) = \mathbf{G}(\mathbf{x}, T - s)$$</p>
+                    <p>Additionally, let the marginal distribution of the reverse SDE be $q(\mathbf{x}, s)$.</p>
+                    <p>We will proceed by reducing the following relationship, ultimately proving that the aforementioned $\mathbf{m}(\mathbf{x}, t)$ is a solution to the equation below. For $\forall \lambda \in [0, T]$:</p>
+                    <p class="text-center">$$q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$$</p>
+                    <p class="text-center">$$\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$$</p>
+                    
+                    <p>First, we expand the partial derivative terms on both sides of the equation.</p>
+                    <p><strong>1. Left side</strong>: According to the Fokker-Planck equation, and letting $\mathbf{D} = \mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T$:</p>
+                    <p class="text-center">
+                            $$\begin{aligned}
+                            \left. \frac{\partial p}{\partial t} \right|_{t=\lambda} &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] \\
+                            &\quad + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))]
+                            \end{aligned}$$
+                        </p>
 
-                <p><strong>2. Right side</strong>: Similarly, using the Fokker-Planck equation:</p>
-                <p class="text-center">
-                        $$\begin{aligned}
-                        - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda} &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)q(\mathbf{x}, T - \lambda)] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{K}(\mathbf{x}, T - \lambda)\mathbf{K}(\mathbf{x}, T - \lambda)^T q(\mathbf{x}, T - \lambda))] \\
-                        &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)q(\mathbf{x}, T - \lambda)] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T q(\mathbf{x}, T - \lambda))] \\
-                        &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)p(\mathbf{x}, \lambda)] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T p(\mathbf{x}, \lambda))] \\
-                        &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= \nabla \cdot [[-\mathbf{f}(\mathbf{x}, \lambda) - \mathbf{m}(\mathbf{x}, \lambda)]p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))]
-                        \end{aligned}$$
-                    </p>
+                    <p><strong>2. Right side</strong>: Similarly, using the Fokker-Planck equation:</p>
+                    <p class="text-center">
+                            $$\begin{aligned}
+                            - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda} &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)q(\mathbf{x}, T - \lambda)] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{K}(\mathbf{x}, T - \lambda)\mathbf{K}(\mathbf{x}, T - \lambda)^T q(\mathbf{x}, T - \lambda))] \\
+                            &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)q(\mathbf{x}, T - \lambda)] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T q(\mathbf{x}, T - \lambda))] \\
+                            &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)p(\mathbf{x}, \lambda)] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T p(\mathbf{x}, \lambda))] \\
+                            &= \nabla \cdot [\mathbf{h}(\mathbf{x}, T - \lambda)p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= \nabla \cdot [[-\mathbf{f}(\mathbf{x}, \lambda) - \mathbf{m}(\mathbf{x}, \lambda)]p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))]
+                            \end{aligned}$$
+                        </p>
 
-                <p><strong>3. Verification</strong>: We check if $\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$ holds true when $\mathbf{m}(\mathbf{x}, t) = -\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$. Substituting this in:</p>
-                <p class="text-center">
-                        $$\begin{aligned}
-                        - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda} &= \nabla \cdot [[-\mathbf{f}(\mathbf{x}, \lambda) - \mathbf{m}(\mathbf{x}, \lambda)]p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot [\mathbf{m}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot \left[ \left( -\nabla \cdot \mathbf{D} - \mathbf{D}\frac{\nabla p}{p} \right) p(\mathbf{x}, \lambda) \right] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot \left[ -(\nabla \cdot \mathbf{D})p - \mathbf{D}(\nabla p) \right] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \nabla \cdot \left[ (\nabla \cdot \mathbf{D})p + \mathbf{D}(\nabla p) \right] \\
-                        &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \nabla \cdot (\nabla \cdot (\mathbf{D}p)) - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
-                        &= \left. \frac{\partial p}{\partial t} \right|_{t=\lambda}
-                        \end{aligned}$$
-                    </p>
-                <p>We can see that the condition is indeed satisfied. It naturally follows that $q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$.</p>
-                <p>Q.E.D.</p>
+                    <p><strong>3. Verification</strong>: We check if $\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$ holds true when $\mathbf{m}(\mathbf{x}, t) = -\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$. Substituting this in:</p>
+                    <p class="text-center">
+                            $$\begin{aligned}
+                            - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda} &= \nabla \cdot [[-\mathbf{f}(\mathbf{x}, \lambda) - \mathbf{m}(\mathbf{x}, \lambda)]p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot [\mathbf{m}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot \left[ \left( -\nabla \cdot \mathbf{D} - \mathbf{D}\frac{\nabla p}{p} \right) p(\mathbf{x}, \lambda) \right] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] - \nabla \cdot \left[ -(\nabla \cdot \mathbf{D})p - \mathbf{D}(\nabla p) \right] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \nabla \cdot \left[ (\nabla \cdot \mathbf{D})p + \mathbf{D}(\nabla p) \right] \\
+                            &\quad - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \nabla \cdot (\nabla \cdot (\mathbf{D}p)) - \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= -\nabla \cdot [\mathbf{f}(\mathbf{x}, \lambda)p(\mathbf{x}, \lambda)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{D}p(\mathbf{x}, \lambda))] \\
+                            &= \left. \frac{\partial p}{\partial t} \right|_{t=\lambda}
+                            \end{aligned}$$
+                        </p>
+                    <p>We can see that the condition is indeed satisfied. It naturally follows that $q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$.</p>
+                    <p>Q.E.D.</p>
+                </div>
             </div>
         </article>
         </main>
