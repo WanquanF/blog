@@ -57,15 +57,15 @@
 
 ## 4. 如何创建一篇新博客 (How to add a new post)
 
-**不要从零手写 HTML！** 请直接复制一篇现有的文章（例如 `posts/2026-04-01-flow-grpo.html`），重命名后进行修改。
+**不要从零手写 HTML！** 请直接复制一篇现有的文章（例如 `posts/20250912_sde_derivation.html`），重命名后进行修改。
 
 **修改步骤清单：**
-1. **修改 `<title>`**: `<title>你的文章标题 | Wanquan Feng</title>` (Title 标签不需要双语 span，直接写主要的即可)。
-2. **修改页面大标题 (H1)**: 替换双语 span 中的内容。
-3. **修改日期与阅读时间**: 确保日期和阅读时间的双语准确。
-4. **修改正文**: 在 `<div class="lang-zh">` 和 `<div class="lang-en">` 中分别填入内容。**不要破坏 `<article class="prose...">` 的外层包裹。**
-5. **(可选) 侧边栏目录 (TOC)**: 博客支持在右侧显示悬浮目录。如需开启，请确保文章内容的 `<main>` 标签与 `<aside>` 侧边栏包裹在一个 `flex` 容器内，并在 JS 中引入 `generateTOC()` 方法（参考 `20250912_wanquanfeng.html` 的实现）。
-6. **更新引用块 (Citation)**: 更新文末 `@article` 引用代码块中的 `title`, `year`, 和 `url`。
+1. **复用核心库 (Include Common Assets)**: 确保新页面的 `<head>` 中引入了 `assets/css/common.css` 和 `assets/js/common.js`。这是保证页面宽度一致、自动编号生效、暗色模式工作的核心。**不要在新 HTML 里手写重复的 CSS 和 JS 逻辑！**
+2. **修改 `<title>`**: `<title>你的文章标题 | Wanquan Feng</title>` (Title 标签不需要双语 span，直接写主要的即可)。
+3. **修改页面大标题 (H1)**: 替换双语 span 中的内容。
+4. **修改日期与阅读时间**: 确保日期和阅读时间的双语准确。
+5. **修改正文**: 在 `<div class="lang-zh">` 和 `<div class="lang-en">` 中分别填入内容。**不要破坏 `<article class="prose...">` 的外层包裹。**
+6. **(可选) 侧边栏目录 (TOC)**: 博客支持在右侧显示悬浮目录。如需开启，请确保文章内容的 `<main>` 标签与 `<aside>` 侧边栏包裹在一个 `flex` 容器内。目录生成逻辑已在 `common.js` 的 `generateTOC()` 方法中自动处理，无需在每个 HTML 中重新编写。
 7. **更新首页列表**: 回到 `blog/index.html`，在 `<main>` 中复制一个现有的 `<article class="post-entry ...">` 块，填入新文章的链接、双语标题、日期和双语摘要。
 
 ## 5. 样式参考字典 (Style Dictionary)
@@ -86,7 +86,7 @@
 3. **证明过程高亮框 (Proof Highlight Box)**:
    * 所有的多行块级公式 (`$$...$$`) 被包裹在 `.katex-display` 中，该容器**不再有任何颜色或背景框**，仅用于自动换行和居中。
    * 对于证明过程（包含文字描述和相关的数学公式），必须被包裹在 `<div class="proof-box"> ... </div>` 容器内。
-   * 博客已经全局配置了该 `.proof-box` 容器的样式：白天模式下为浅绿色背景圆角框，**黑夜模式下为更暖的柔和淡红色/粉红色背景框 (`rgba(252, 165, 165, 0.15)`)**，并带有内发光防止暗色背景渗透。禁止写入其它 Tailwind 颜色类。
+   * 博客已经全局配置了该 `.proof-box` 容器的样式：白天模式下为浅绿色背景圆角框，**黑夜模式下为专业深蓝灰 (`#0f172a`)，左侧带有青色高亮边框，且所有公式渲染为科技感青色 (`#67e8f9`)**。禁止写入其它 Tailwind 颜色类。
 4. **强调与高亮 (Emphasis)**:
    * 尽量使用语义化的 `<strong>` 标签进行加粗强调。
    * **不要**使用大面积的红色字体（如 `text-red-600`）来标注正文，保持“极简学术风”的高对比度和克制。
@@ -98,10 +98,13 @@ blog/
 ├── index.html                   # 博客首页 (文章列表，双语，主题特效控制)
 ├── readme.md                    # 本规范文档
 ├── assets/
+│   ├── css/
+│   │   └── common.css           # 核心共享样式 (包含响应式布局、编号、公式框、过渡效果等)
 │   └── js/
+│       ├── common.js            # 核心共享逻辑 (包含主题、多语言、特效切换、目录生成等)
 │       └── rain-effects.js      # 核心视觉特效引擎 (8种特效+无特效切换)
 └── posts/                       # 存放所有博客文章
-    └── 2026-04-01-flow-grpo.html
+    └── 20250912_sde_derivation.html
 ```
 
 > **最终原则：如无必要，勿增实体 (Entities should not be multiplied beyond necessity)。保持代码干净、可读、直接。**
