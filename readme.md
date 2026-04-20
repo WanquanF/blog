@@ -70,10 +70,26 @@
 
 ## 5. 样式参考字典 (Style Dictionary)
 如果未来 AI 需要添加新的 UI 元素，请务必支持 Dark Mode，并参考以下 Tailwind Class 组合以保持风格统一：
-* **外层容器限制**: `class="max-w-6xl mx-auto px-6 py-12 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"`
+* **外层容器限制**: `class="max-w-[1400px] mx-auto px-6 py-12 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300"` (注意：使用 1400px 宽屏以适应长公式，且正文与右侧 TOC 需保留安全内边距如 `xl:pr-8`)。
 * **导航链接**: `class="nav-link text-blue-600 dark:text-blue-400"`
 * **首页文章卡片**: `class="post-entry group border border-gray-100 dark:border-gray-800 rounded-2xl p-6 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:shadow-sm hover:-translate-y-1 transition-all"`
 * **正文容器**: `class="prose dark:prose-invert prose-slate prose-lg lg:prose-xl prose-blue max-w-none"`
+
+### 5.1 论文级排版与数学公式规范 (Typography & Math Formulas)
+为了让文章看起来像严谨的学术论文，请遵循以下具体的排版规则：
+1. **标题自动编号 (Auto-numbering)**:
+   * **绝对不要**在 HTML 的 `<h2>` 或 `<h3>` 标签中手动输入序号（如 "1.", "1.1"）或修饰符号（如 "【】", "[]"）。
+   * 博客内置了基于 CSS `counter-reset` 和 `counter-increment` 的自动编号系统。直接写纯文本标题即可，CSS 会自动在 `<h2>` 前加上 "1. "，在 `<h3>` 前加上 "1.1 "。
+2. **多行数学公式对齐 (Formula Alignment)**:
+   * **绝对不要**在块级公式 `$$...$$` 中使用 `<br>` 强行换行。
+   * 所有的多行推导必须使用 LaTeX 的 `\begin{aligned} ... \end{aligned}` 环境，并使用 `&` 对齐等号（`&=`），使用 `\\` 换行。
+3. **公式高亮框 (Formula Highlight Box)**:
+   * 所有的块级公式 (`$$...$$`) 会被 KaTeX 自动包裹在 `.katex-display` 容器中。
+   * 博客已经全局配置了该容器的样式：白天模式下为浅绿色背景圆角框，**黑夜模式下为温暖的琥珀色/暗金色框 (`rgba(253, 230, 138, 0.05)`)**。不需要手动添加额外的 `div` 或背景色类名。
+4. **强调与高亮 (Emphasis)**:
+   * 尽量使用语义化的 `<strong>` 标签进行加粗强调。
+   * **不要**使用大面积的红色字体（如 `text-red-600`）来标注正文，保持“极简学术风”的高对比度和克制。
+   * 对于证明过程，不要专门起一个 `<h3>` 标题，请直接在段落中使用 `<p>✍️ <strong>证明：</strong></p>` 或 `<p>✍️ <strong>Proof:</strong></p>`。
 
 ## 6. 目录结构说明
 ```text
