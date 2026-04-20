@@ -15,6 +15,25 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
     <style>
+        /* KaTeX Custom Display Style */
+        .katex-display {
+            background-color: #f0fdf4; /* Tailwind green-50 */
+            border: 1px solid #dcfce7; /* Tailwind green-100 */
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1.25rem;
+            margin: 1.5rem 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .dark .katex-display {
+            background-color: rgba(20, 83, 45, 0.2); /* Tailwind dark:bg-green-900/20 */
+            border-color: rgba(22, 101, 52, 0.4); /* Tailwind dark:border-green-800/40 */
+        }
+        .katex-display > .katex {
+            text-align: center;
+            white-space: normal;
+        }
+
         body { font-family: 'Times New Roman', Times, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; }
         .prose { font-family: 'Times New Roman', Times, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; max-width: 100%; }
         .nav-link { position: relative; padding-bottom: 2px; }
@@ -357,7 +376,7 @@
                 <p>这个方程就叫做 Fokker-Planck 方程。</p>
                 <p>这个化归的意义在于，把随机变量 $\mathbf{x}_t$ 随时间的演变，转化成边缘密度 $p_t$ 随时间的演变。为什么要做这个转变呢？因为我们通常采样都是以随机变量的形式，但是背后的数学原理很多是以概率密度函数的形式来进行描述。所以这个转变是必要的。</p>
 
-                <h3>证明：</h3>
+                <p>✍️ <strong>证明：</strong></p>
                 <p>取一个任意的标量测试函数 $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$，不显式包含 $t$，且满足：光滑、支撑集有界。</p>
                 <p>然后我们关注函数 $\phi(\mathbf{x})$，下面将用两种方式计算它的「$\mathbb{E}$ & $\frac{\partial}{\partial t}$」的组合。</p>
                 
@@ -406,7 +425,7 @@
                 <p class="text-center">$$\frac{\partial p(\mathbf{x}, t)}{\partial t} = -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))$$</p>
                 <p>证毕。</p>
 
-                <h2>STEP.2 Reverse SDE（反向 modeling）</h2>
+                <h2>Reverse SDE（反向 modeling）</h2>
                 <p>将随机微分方程 $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ 变成所谓的 reverse 形式，是扩散模型最重要的一件任务。</p>
                 <p>它的逻辑是这样的：</p>
                 <p>上述正向方程的反向方程为：</p>
@@ -436,7 +455,7 @@
                 <p class="text-center">$$\mathbf{h}(\mathbf{x}, s) = -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s)$$</p>
                 <p class="text-center">$$\mathbf{K}(\mathbf{x}, s) = \mathbf{G}(\mathbf{x}, T - s)$$</p>
                 <p>此外，记 reverse SDE 的边缘分布为 $q(\mathbf{x}, s)$。</p>
-                <p class="text-red-600 dark:text-red-400 font-medium">我们将从以下关系开始化归，最终证明上述的 $\mathbf{m}(\mathbf{x}, t)$ 是下述方程的一个解。对 $\forall \lambda \in [0, T]$：</p>
+                <p>我们将从以下关系开始化归，最终证明上述的 $\mathbf{m}(\mathbf{x}, t)$ 是下述方程的一个解。对 $\forall \lambda \in [0, T]$：</p>
                 <p class="text-center">$$q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$$</p>
                 <p class="text-center">$$\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$$</p>
                 
@@ -539,7 +558,7 @@
                 <p>This is known as the Fokker-Planck equation.</p>
                 <p>The significance of this formulation lies in transforming the temporal evolution of the random variable $\mathbf{x}_t$ into the temporal evolution of its marginal density $p_t$. Why is this transformation necessary? While we typically sample discrete random variables in practice, the underlying mathematical principles are largely described using probability density functions. Thus, this bridge is essential.</p>
 
-                <h3>Proof:</h3>
+                <p>✍️ <strong>Proof:</strong></p>
                 <p>Let us choose an arbitrary scalar test function $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$ that does not explicitly depend on $t$, and satisfies the conditions of being smooth and having compact support.</p>
                 <p>Focusing on the function $\phi(\mathbf{x})$, we will calculate the combination of its expectation $\mathbb{E}$ and time derivative $\frac{\partial}{\partial t}$ in two different ways.</p>
                 
@@ -586,7 +605,7 @@
                 <p class="text-center">$$\frac{\partial p(\mathbf{x}, t)}{\partial t} = -\nabla \cdot (p\mathbf{f}) + \frac{1}{2}\nabla \cdot (\nabla \cdot (p\mathbf{G}\mathbf{G}^T))$$</p>
                 <p>Q.E.D.</p>
 
-                <h2>STEP 2. Reverse SDE (Reverse Modeling)</h2>
+                <h2>Reverse SDE (Reverse Modeling)</h2>
                 <p>Transforming the stochastic differential equation $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ into its so-called reverse form is one of the most critical tasks in diffusion models.</p>
                 <p>The logic proceeds as follows:</p>
                 <p>The reverse equation of the aforementioned forward equation is:</p>
@@ -616,7 +635,7 @@
                 <p class="text-center">$$\mathbf{h}(\mathbf{x}, s) = -\mathbf{f}(\mathbf{x}, T - s) - \mathbf{m}(\mathbf{x}, T - s)$$</p>
                 <p class="text-center">$$\mathbf{K}(\mathbf{x}, s) = \mathbf{G}(\mathbf{x}, T - s)$$</p>
                 <p>Additionally, let the marginal distribution of the reverse SDE be $q(\mathbf{x}, s)$.</p>
-                <p class="text-red-600 dark:text-red-400 font-medium">We will proceed by reducing the following relationship, ultimately proving that the aforementioned $\mathbf{m}(\mathbf{x}, t)$ is a solution to the equation below. For $\forall \lambda \in [0, T]$:</p>
+                <p>We will proceed by reducing the following relationship, ultimately proving that the aforementioned $\mathbf{m}(\mathbf{x}, t)$ is a solution to the equation below. For $\forall \lambda \in [0, T]$:</p>
                 <p class="text-center">$$q(\mathbf{x}, \lambda) = p(\mathbf{x}, T - \lambda)$$</p>
                 <p class="text-center">$$\left. \frac{\partial p}{\partial t} \right|_{t=\lambda} = - \left. \frac{\partial q}{\partial s} \right|_{s=T-\lambda}$$</p>
                 
