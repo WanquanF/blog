@@ -1,4 +1,4 @@
-window.currentWeather = localStorage.getItem('blog-weather') || 'constellation';
+window.currentWeather = localStorage.getItem('blog-weather') || 'none';
 
 document.addEventListener("DOMContentLoaded", function() {
     const canvas = document.createElement('canvas');

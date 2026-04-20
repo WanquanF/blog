@@ -212,7 +212,7 @@
 
         const weatherTypes = ['constellation', 'rain', 'snow', 'fireflies', 'cherry', 'dandelion', 'ripples', 'grid', 'none'];
         function toggleWeather() {
-            let current = localStorage.getItem('blog-weather') || 'constellation';
+            let current = localStorage.getItem('blog-weather') || 'none';
             let nextIndex = (weatherTypes.indexOf(current) + 1) % weatherTypes.length;
             let next = weatherTypes[nextIndex];
             
@@ -229,16 +229,18 @@
 
             let theme = localStorage.getItem('blog-theme');
             if (!theme) {
-                theme = 'dark';
+                theme = 'light';
                 localStorage.setItem('blog-theme', theme);
             }
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
             }
             
             let weather = localStorage.getItem('blog-weather');
             if (!weather) {
-                weather = 'constellation';
+                weather = 'none';
                 localStorage.setItem('blog-weather', weather);
             }
             window.currentWeather = weather;

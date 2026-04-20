@@ -15,7 +15,7 @@
 
 ## 2. 核心架构与技术栈 (Tech Stack)
 * **CSS 框架**: Tailwind CSS (通过 CDN `https://cdn.tailwindcss.com` 引入)，正文排版使用 `@tailwindcss/typography` 插件（即 `<article class="prose ...">`）。
-* **状态管理**: 使用 `LocalStorage` 纯前端持久化管理多语言 (`lang`)、黑夜模式 (`theme`) 和天气特效 (`weather`)。默认状态为“黑夜模式 + 星空连线”。
+* **状态管理**: 使用 `LocalStorage` 纯前端持久化管理多语言 (`lang`)、黑夜模式 (`theme`) 和天气特效 (`weather`)。默认状态为“白天模式 + 无特效”。
 * **数学公式**: 使用 `KaTeX` (CDN 引入)。**注意：** 必须在页面的 `<script>` 中使用 `renderMathInElement` 初始化自动渲染，并配置好对应的定界符 (delimiters)，例如块级公式 `$$...$$` 和行内公式 `$...$` 等，否则页面上的 LaTeX 公式将无法被解析和渲染。
 * **图标/字体**: 字体为系统自带 (英文为 Times New Roman，中文为系统默认)。
 
