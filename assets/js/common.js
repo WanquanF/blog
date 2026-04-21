@@ -207,7 +207,11 @@ function showToast() {
 
 
 function scrollToCitation() {
-    const el = document.getElementById('citation-section');
+    const html = document.documentElement;
+    const isZh = html.getAttribute('lang') === 'zh-CN';
+    const sectionId = isZh ? 'citation-section-zh' : 'citation-section-en';
+    const el = document.getElementById(sectionId);
+    
     if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         // Add a highlight effect

@@ -2,6 +2,7 @@
 
 > **致未来的 AI 助手 (To future LLMs/VLMs):** 
 > 当你接手这个项目并协助添加新功能或新文章时，**请务必严格遵守本文档中的所有规范**。这个博客追求极致的学术极简风，拒绝花哨的框架，采用纯静态、无构建工具的架构。
+> **代码修改纪律：** 作为 AI 助手在修改此项目的代码时，**严禁编写并运行 Python/Bash 脚本来修改文件**。你必须使用 IDE 提供的标准文件编辑 API（如 SearchReplace），以便人类开发者能够在编辑器的 Source Control / Diff 视图中进行直观的 Code Review 并手动 Accept 你的更改。
 
 ---
 
@@ -90,7 +91,13 @@
 4. **强调与高亮 (Emphasis)**:
    * 尽量使用语义化的 `<strong>` 标签进行加粗强调。
    * **不要**使用大面积的红色字体（如 `text-red-600`）来标注正文，保持“极简学术风”的高对比度和克制。
-   * 对于证明过程，不要专门起一个 `<h3>` 标题，请直接在段落中使用 `<p>✍️ <strong>证明：</strong></p>` 或 `<p>✍️ <strong>Proof:</strong></p>`。
+   * 对于证明过程，不要专门起一个 `<h3>` 标题，请直接在段落中使用 `<p><strong>证明：</strong></p>` 或 `<p><strong>Proof:</strong></p>`，**严禁使用 Emoji (如 ✍️, 🎃 等)**。
+
+### 5.2 引用规范 (Citation System)
+为了方便读者引用文章，博客实现了一套全局的引用系统：
+1. **文章内引用区块**: 必须在文章正文结尾（`</article>` 之前）提供 `citation-section-zh` 和 `citation-section-en` 两个包裹着 BibTeX 的独立 `<div>` 区块。**不要使用 `<h3>` 等标题标签**，以免被目录生成器捕获。
+2. **顶部导流横幅**: 在文章 `<header>` 的末尾，必须提供一个统一的蓝底引用提示框，其中包含一个调用 `scrollToCitation()` 的按钮，点击后平滑滚动至底部的引用区块。
+3. **全局复制 API**: 不要手写复制逻辑，请直接在相关的按钮上绑定 `copyCitation(url, title)` 或 `copyCitationText(btn)`，底层 `common.js` 会自动处理剪贴板写入并弹出 Toast 提示。
 
 ## 6. 目录结构说明
 ```text
