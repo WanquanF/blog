@@ -72,7 +72,7 @@ html.weather-grid .icon-grid { display: block; }
 .prose {
     font-family: 'Times New Roman', Times, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     max-width: 100%;
-    font-size: 90% !important; /* 将默认字体大小缩小为原来的 0.9 倍 */
+    font-size: 98% !important; /* 将字体大小调整为 0.95，比之前稍微大一点 */
 }
 
 /* 调整正文的行间距和段落间距，使其更紧凑 */
