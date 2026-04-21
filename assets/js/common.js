@@ -204,3 +204,17 @@ function showToast() {
         document.body.removeChild(toast);
     }, 2300);
 }
+
+
+function scrollToCitation() {
+    const el = document.getElementById('citation-section');
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Add a highlight effect
+        el.style.transition = 'all 0.5s ease';
+        el.style.boxShadow = '0 0 0 2px #3b82f6, 0 0 20px rgba(59, 130, 246, 0.5)';
+        setTimeout(() => {
+            el.style.boxShadow = '';
+        }, 2000);
+    }
+}
