@@ -161,3 +161,46 @@ document.addEventListener('scroll', function() {
 function scrollToTop() {
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
+
+// 6. Citation Copy Function
+function copyCitation(url, title) {
+    const year = new Date().getFullYear();
+    const citation = `Feng, W. (${year}). ${title}. Wanquan Feng's Blog. ${url}`;
+    navigator.clipboard.writeText(citation).then(() => {
+        showToast();
+    });
+}
+
+function copyCitationText(btn) {
+    const pre = btn.previousElementSibling;
+    if (pre) {
+        navigator.clipboard.writeText(pre.innerText).then(() => {
+            showToast();
+        });
+    }
+}
+
+function showToast() {
+    const html = document.documentElement;
+    const isZh = html.getAttribute('lang') === 'zh-CN';
+    const text = isZh ? '已复制引用！' : 'Citation copied!';
+    
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl z-50 transition-all duration-300 opacity-0 translate-y-4 font-medium text-sm';
+    toast.innerText = text;
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('opacity-0', 'translate-y-4');
+    }, 10);
+    
+    // Animate out
+    setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-4');
+    }, 2000);
+    
+    setTimeout(() => {
+        document.body.removeChild(toast);
+    }, 2300);
+}

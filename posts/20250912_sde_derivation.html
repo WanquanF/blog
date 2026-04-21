@@ -70,6 +70,11 @@
                 <span class="lang-en">10 min read</span>
                 <span class="lang-zh">10 分钟阅读</span>
             </span>
+            <span>•</span>
+            <button onclick="copyCitation(window.location.href, 'Summary of Basic SDE/ODE Math Derivations in Diffusion Models')" class="hover:text-blue-500 transition-colors flex items-center gap-1" title="Copy Citation">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <span class="lang-zh">复制引用</span><span class="lang-en">Copy Citation</span>
+            </button>
         </div>
     </header>
 
@@ -126,13 +131,13 @@
                 <p>所以，尽管常见的关于扩散模型的理论都采用了更简单的形式，比如 $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + g(t)d\mathbf{w}$，甚至 $d\mathbf{x} = \mathbf{v}(\mathbf{x}, t)dt$，我们还是研究一种更通用的形式。这乍一看是变麻烦了，但实则是变简单了，可以方便从经典的推断中借鉴我们需要的手法。</p>
 
                 <h2>边缘分布：Fokker-Planck 方程</h2>
-                <p>随机微分方程 $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ 描述了随机变量 $\mathbf{x}$ 关于时间 $t$ 的关系。我们先介绍一个经典方程，称作 Fokker-Planck 方程。假设 $\mathbf{x}(t)$ 的概率密度函数为 $p_t(\mathbf{x})$，这通常称作 <strong>边缘密度</strong> (marginal density)。那么由上述 SDE 引导出的关于边缘密度 $p_t(\mathbf{x})$ 的方程为：</p>
+                <p>随机微分方程 $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ 描述了随机变量 $\mathbf{x}$ 关于时间 $t$ 的关系。我们先介绍一个经典方程，称作 Fokker-Planck 方程。假设 $\mathbf{x}(t)$ 的概率密度函数为 $p_t(\mathbf{x})$，这通常称作<strong>边缘密度</strong> (marginal density)。那么由上述 SDE 引导出的关于边缘密度 $p_t(\mathbf{x})$ 的方程为：</p>
                 <p class="text-center">$$\frac{\partial p}{\partial t} = -\nabla \cdot [\mathbf{f}(\mathbf{x}, t)p(\mathbf{x}, t)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T p(\mathbf{x}, t))]$$</p>
                 <p>这个方程就叫做 Fokker-Planck 方程。</p>
                 <p>这个化归的意义在于，把随机变量 $\mathbf{x}_t$ 随时间的演变，转化成边缘密度 $p_t$ 随时间的演变。为什么要做这个转变呢？因为我们通常采样都是以随机变量的形式，但是背后的数学原理很多是以概率密度函数的形式来进行描述。所以这个转变是必要的。</p>
 
                 <div class="proof-box">
-                    <p>✍️ <strong>证明：</strong></p>
+                    <p><strong>证明：</strong></p>
                     <p>取一个任意的标量测试函数 $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$，不显式包含 $t$，且满足：光滑、支撑集有界。</p>
                     <p>然后我们关注函数 $\phi(\mathbf{x})$，下面将用两种方式计算它的「$\mathbb{E}$ & $\frac{\partial}{\partial t}$」的组合。</p>
                     
@@ -191,7 +196,7 @@
                 <p>这里我们证明一下上面的方程是一个 reverse SDE（依赖于 Fokker-Planck 方程）：</p>
 
                 <div class="proof-box">
-                    <p>✍️ <strong>证明：</strong></p>
+                    <p><strong>证明：</strong></p>
                     <p>这个验证过程比较绕，需要将时间反转。具体地，令 $s = T - t$，</p>
                     <p>在上述关于 $t$ 的方程</p>
                     <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
@@ -281,8 +286,8 @@
                     <li>但是 $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$ 就没这个问题，它不需要满足任何全局归一化条件。所以任凭网络自由预测也不会违背什么。</li>
                 </ol>
 
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 my-6">
-                    <p class="mt-0 mb-2">🎃 <strong>定义 score function:</strong></p>
+                <div class="proof-box">
+                    <p class="mt-0 mb-2"><strong>定义 score function:</strong></p>
                     <p class="text-center">$$s(\mathbf{x}, t) = \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$$</p>
                     <p class="mb-0">同时我们的目标也很明确了，让网络去预测一个 $s_\theta(\mathbf{x}, t)$，使得 $s_\theta(\mathbf{x}, t) \approx s(\mathbf{x}, t)$。</p>
                 </div>
@@ -292,8 +297,8 @@
                 <p>在训练中，我们有样本点 $\mathbf{x}_0$，但是并没有 $p_0(\mathbf{x})$。所以尽管我们按照已知的公式对 $\mathbf{x}_0$ 加噪得到 $\mathbf{x}_t$，我们还是不知道 $p_t(\mathbf{x})$。</p>
                 <p>但是！幸运地！</p>
 
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃 <strong>1. 我们知道条件分布 $p_t(\mathbf{x}_t | \mathbf{x}_0)$</strong></p>
+                <div class="proof-box">
+                    <p class="mt-0"><strong>1. 我们知道条件分布 $p_t(\mathbf{x}_t | \mathbf{x}_0)$</strong></p>
                     <p>一般是 $p_t(\mathbf{x}_t | \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; a\mathbf{x}_0, b\mathbf{I})$，对应于训练中的 add noise 过程。注意到 $\nabla_{\mathbf{x}} \log \{p_t(\mathbf{x}_t | \mathbf{x}_0)\} = -\frac{\mathbf{x}_t - a\mathbf{x}_0}{b}$，这个东西真的能写出来具体的表达式，所以我们可以在 loss 里面大胆使用。</p>
                     
                     <p class="mt-6"><strong>2. 另一个重要的等式是：</strong></p>
@@ -310,7 +315,7 @@
                 <p>证明过程很简单，只需要展开积分算一算就行了：</p>
 
                 <div class="proof-box">
-                    <p>✍️ <strong>证明：</strong></p>
+                    <p><strong>证明：</strong></p>
                     <p>规定凡和 $s_\theta(\mathbf{x}_t, t)$ 无关的量一律记为 $Const$。此外需要用到边缘积分：$p_t(\mathbf{x}_t) = \int_{\mathbf{x}_0} p_0(\mathbf{x}_0)p_{t|0}(\mathbf{x}_t | \mathbf{x}_0)d\mathbf{x}_0$</p>
                     <p>从左侧开始，展开算一下：</p>
                     <p class="text-center overflow-x-auto">
@@ -342,8 +347,8 @@
                 
                 <p>SDE 描述了随机变量随时间的连续演化。但是在实际应用中，我们无法在连续时间上进行计算，因此需要将 SDE 离散化为一系列小的时间步长。Euler-Maruyama 方法是最简单也是最常用的 SDE 离散化方法。</p>
 
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃 <strong>在离散化之前，需要注意一个事实：</strong></p>
+                <div class="proof-box">
+                    <p class="mt-0"><strong>在离散化之前，需要注意一个事实：</strong></p>
                     <p class="text-center">$$d\mathbf{w} \sim \mathcal{N}(\mathbf{0}, |dt| \cdot \mathbf{I})$$</p>
                     <p>所以可以认为：</p>
                     <p class="text-center mb-0">$$d\mathbf{w} = \sqrt{|dt|} \cdot \mathbf{z} \text{，其中 } \mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$$</p>
@@ -352,8 +357,8 @@
                 <h3>Forward SDE 的 Euler-Maruyama 离散化</h3>
                 <p>取 $dt$ 为 $1$，取两个时间点为 $\{t, t+1\}$，则：</p>
                 
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃</p>
+                <div class="proof-box">
+                    <p class="mt-0"></p>
                     <p class="text-center overflow-x-auto mb-0">
                         $$\begin{aligned}
                         \mathbf{x}_{t+1} &= \mathbf{x}_t + \mathbf{f}(\mathbf{x}_t, t) \cdot 1 + \mathbf{G}(\mathbf{x}_t, t)\sqrt{1}\mathbf{z}_t \\
@@ -365,8 +370,8 @@
                 <h3>Reverse SDE 的 Euler-Maruyama 离散化</h3>
                 <p>取 $dt$ 为 $-1$，取两个时间点为 $\{t, t-1\}$，则 Reverse SDE 可以离散化为：</p>
 
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃</p>
+                <div class="proof-box">
+                    <p class="mt-0"></p>
                     <p class="text-center overflow-x-auto mb-0">
                         $$\begin{aligned}
                         \mathbf{x}_{t-1} &= \mathbf{x}_t + \left[ \mathbf{f}(\mathbf{x}_t, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}_t, t)\mathbf{G}(\mathbf{x}_t, t)^T) - \mathbf{G}(\mathbf{x}_t, t)\mathbf{G}(\mathbf{x}_t, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] \cdot (-1) + \mathbf{G}(\mathbf{x}_t, t)\sqrt{|-1|}\mathbf{z}_t \\
@@ -395,7 +400,7 @@
                 <p>离散化后为：</p>
                 <p class="text-center">$$\mathbf{x}_{t-1} = (2 - \sqrt{1 - \beta_t})\mathbf{x}_t + \beta_t \mathbf{s}_\theta(\mathbf{x}, t) + \sqrt{\beta_t}\mathbf{z}_t$$</p>
 
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6 my-6">
+                <div class="proof-box">
                     <p class="mt-0 font-bold">注意，这个公式和 DDPM 原版的公式不一样，但是：</p>
                     <ol class="mb-0">
                         <li>在 $\beta_t \ll 1$ 的时候是等价的</li>
@@ -432,7 +437,7 @@
                 <p>首先<strong>这个公式没有布朗运动，其次它的边缘密度和原 SDE 是一模一样的。</strong>证明如下（利用 Liouville 公式）：</p>
 
                 <div class="proof-box">
-                    <p>✍️ <strong>证明：</strong></p>
+                    <p><strong>证明：</strong></p>
                     <p>记概率流 ODE 的边缘密度为 $q(\mathbf{x}, t)$，此外我们记 $\mathbf{D} = \mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T$，根据 Liouville 公式：</p>
                     <p class="text-center overflow-x-auto">
                         $$\begin{aligned}
@@ -445,7 +450,7 @@
                     <p>证毕。</p>
                 </div>
 
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6 my-6">
+                <div class="proof-box">
                     <p class="mt-0 mb-0 font-bold">注意：假如我们将 $\mathbf{f}(\mathbf{x}, t) - \frac{1}{2}\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \frac{1}{2}\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla \log p_t(\mathbf{x})$ 就看做 $\mathbf{v}(\mathbf{x}, t)$，那其实就是变成了 flow matching 的 forward，没有区别。</p>
                 </div>
 
@@ -466,7 +471,7 @@
                 <p>对于 Flow-GRPO 来说，采样想加入随机性，就必须得将 reverse 过程改造成 SDE。</p>
                 <p>参考原文：</p>
                 
-                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 my-6 italic text-sm">
+                <div class="proof-box">
                     <p class="mt-0">Substituting Eq. 15 to Eq. 14, we arrive at the drift coefficients of the target forward SDE:</p>
                     <p class="text-center">$$f_{\text{SDE}} = \boldsymbol{v}_t(\mathbf{x}_t, t) + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x})$$</p>
                     <p>Hence, we can rewrite the forward SDE in Eq. 11 as:</p>
@@ -476,8 +481,30 @@
                 <p>非常简单可以看出这就是上面我们将 ODE 转 SDE 的简化形式，其中 $\mathbf{G}(\mathbf{x}, t) = \sigma_t$</p>
                 <p>以这样的视角来看，很快就理解了。</p>
 
+                
                 <h2>结语</h2>
                 <p>经过这些梳理之后，我们发现：上述知识是理解生成模型的钥匙，没有这些，一定读不懂相关的理论和论文。</p>
+                
+                <div class="mt-12 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 not-prose">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                        <span class="lang-zh">引用这篇文章</span><span class="lang-en">Cite this article</span>
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <span class="lang-zh">如果您觉得这篇文章对您有帮助，欢迎引用：</span>
+                        <span class="lang-en">If you find this article helpful, please consider citing it:</span>
+                    </p>
+                    <div class="relative">
+                        <pre class="text-sm bg-white dark:bg-gray-900 p-4 rounded-lg overflow-x-auto text-gray-800 dark:text-gray-300 border border-gray-100 dark:border-gray-800"><code>@article{feng2025sde,
+  title   = {Summary of Basic SDE/ODE Math Derivations in Diffusion Models},
+  author  = {Feng, Wanquan},
+  year    = {2025},
+  url     = {https://wanquanf.github.io/blog/posts/20250912_sde_derivation.html}
+}</code></pre>
+                        <button onclick="copyCitationText(this)" class="absolute top-2 right-2 p-2 text-gray-500 hover:text-blue-500 transition-colors bg-white dark:bg-gray-900 rounded-md shadow-sm border border-gray-100 dark:border-gray-800" title="Copy BibTeX">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="lang-en">
@@ -530,13 +557,13 @@
                 <p>Therefore, although popular theories on diffusion models often adopt simpler forms, such as $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + g(t)d\mathbf{w}$, or even $d\mathbf{x} = \mathbf{v}(\mathbf{x}, t)dt$, we will study the more general form. While it might seem more complicated at first glance, it actually simplifies the process by allowing us to easily borrow essential techniques from classic mathematical derivations.</p>
 
                 <h2>Marginal Distribution: Fokker-Planck Equation</h2>
-                <p>The stochastic differential equation $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ describes the evolution of the random variable $\mathbf{x}$ over time $t$. We first introduce a classic equation known as the Fokker-Planck equation. Suppose the probability density function of $\mathbf{x}(t)$ is $p_t(\mathbf{x})$, typically referred to as the <strong>marginal density</strong>. The evolution of this marginal density $p_t(\mathbf{x})$, as induced by the aforementioned SDE, is governed by:</p>
+                <p>The stochastic differential equation $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$ describes the evolution of the random variable $\mathbf{x}$ over time $t$. We first introduce a classic equation known as the Fokker-Planck equation. Suppose the probability density function of $\mathbf{x}(t)$ is $p_t(\mathbf{x})$, typically referred to as the<strong>marginal density</strong>. The evolution of this marginal density $p_t(\mathbf{x})$, as induced by the aforementioned SDE, is governed by:</p>
                 <p class="text-center">$$\frac{\partial p}{\partial t} = -\nabla \cdot [\mathbf{f}(\mathbf{x}, t)p(\mathbf{x}, t)] + \frac{1}{2}\nabla \cdot [\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T p(\mathbf{x}, t))]$$</p>
                 <p>This is known as the Fokker-Planck equation.</p>
                 <p>The significance of this formulation lies in transforming the temporal evolution of the random variable $\mathbf{x}_t$ into the temporal evolution of its marginal density $p_t$. Why is this transformation necessary? While we typically sample discrete random variables in practice, the underlying mathematical principles are largely described using probability density functions. Thus, this bridge is essential.</p>
 
                 <div class="proof-box">
-                    <p>✍️ <strong>Proof:</strong></p>
+                    <p><strong>Proof:</strong></p>
                     <p>Let us choose an arbitrary scalar test function $\phi(\mathbf{x}): \mathbb{R}^N \to \mathbb{R}$ that does not explicitly depend on $t$, and satisfies the conditions of being smooth and having compact support.</p>
                     <p>Focusing on the function $\phi(\mathbf{x})$, we will calculate the combination of its expectation $\mathbb{E}$ and time derivative $\frac{\partial}{\partial t}$ in two different ways.</p>
                     
@@ -591,11 +618,11 @@
                 <p>The reverse equation of the aforementioned forward equation is:</p>
                 <p class="text-center">$$d\mathbf{x} = \left[ \mathbf{f}(\mathbf{x}, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
                 <p>The time domain remains $t \in [0, T]$. Note that the reverse SDE inherently requires the term $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$, which means it relies on prior knowledge of the data distribution. This dictates that we must use a neural network to predict $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$; otherwise, the reverse process would be impossible.</p>
-                <p>An important point to emphasize is: <strong>The equation that achieves an exact reverse process is not unique. As we will see later, there are infinitely many equations capable of successfully reversing the noise distribution back to the data distribution.</strong> The equation presented above is simply the most classic and commonly used one.</p>
+                <p>An important point to emphasize is:<strong>The equation that achieves an exact reverse process is not unique. As we will see later, there are infinitely many equations capable of successfully reversing the noise distribution back to the data distribution.</strong> The equation presented above is simply the most classic and commonly used one.</p>
                 <p>Here, we provide a proof that the above equation indeed constitutes a valid reverse SDE (relying on the Fokker-Planck equation):</p>
 
                 <div class="proof-box">
-                    <p>✍️ <strong>Proof:</strong></p>
+                    <p><strong>Proof:</strong></p>
                     <p>This verification process is somewhat convoluted as it involves time reversal. Specifically, let $s = T - t$.</p>
                     <p>In the aforementioned equation with respect to $t$:</p>
                     <p class="text-center">$$d\mathbf{x}_t = \left[ \mathbf{f}(\mathbf{x}, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] dt + \mathbf{G}(\mathbf{x}, t) d\mathbf{\bar{w}}$$</p>
@@ -685,8 +712,8 @@
                     <li>But $\nabla_{\mathbf{x}} \log p_t(\mathbf{x})$ does not have this problem. It does not need to satisfy any global normalization conditions. Thus, the network can predict it freely without violating any constraints.</li>
                 </ol>
 
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 my-6">
-                    <p class="mt-0 mb-2">🎃 <strong>Definition of the score function:</strong></p>
+                <div class="proof-box">
+                    <p class="mt-0 mb-2"><strong>Definition of the score function:</strong></p>
                     <p class="text-center">$$s(\mathbf{x}, t) = \nabla_{\mathbf{x}} \log p_t(\mathbf{x})$$</p>
                     <p class="mb-0">Our goal is now very clear: train a network to predict a term $s_\theta(\mathbf{x}, t)$ such that $s_\theta(\mathbf{x}, t) \approx s(\mathbf{x}, t)$.</p>
                 </div>
@@ -696,8 +723,8 @@
                 <p>During training, we have data samples $\mathbf{x}_0$, but we do not have $p_0(\mathbf{x})$. So even if we add noise to $\mathbf{x}_0$ to get $\mathbf{x}_t$ according to known formulas, we still don't know $p_t(\mathbf{x})$.</p>
                 <p>But! Fortunately!</p>
 
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃 <strong>1. We know the conditional distribution $p_t(\mathbf{x}_t | \mathbf{x}_0)$</strong></p>
+                <div class="proof-box">
+                    <p class="mt-0"><strong>1. We know the conditional distribution $p_t(\mathbf{x}_t | \mathbf{x}_0)$</strong></p>
                     <p>Typically, $p_t(\mathbf{x}_t | \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; a\mathbf{x}_0, b\mathbf{I})$, corresponding to the add noise process during training. Notice that $\nabla_{\mathbf{x}} \log \{p_t(\mathbf{x}_t | \mathbf{x}_0)\} = -\frac{\mathbf{x}_t - a\mathbf{x}_0}{b}$. We can actually write out the specific expression for this, so we can boldly use it in the loss function.</p>
                     
                     <p class="mt-6"><strong>2. Another important equation is:</strong></p>
@@ -714,7 +741,7 @@
                 <p>The proof process is very simple; it only requires expanding the integrals and calculating:</p>
 
                 <div class="proof-box">
-                    <p>✍️ <strong>Proof:</strong></p>
+                    <p><strong>Proof:</strong></p>
                     <p>We stipulate that any quantity independent of $s_\theta(\mathbf{x}_t, t)$ is uniformly denoted as $Const$. In addition, we need to use the marginal integral: $p_t(\mathbf{x}_t) = \int_{\mathbf{x}_0} p_0(\mathbf{x}_0)p_{t|0}(\mathbf{x}_t | \mathbf{x}_0)d\mathbf{x}_0$</p>
                     <p>Starting from the left side, expand and calculate:</p>
                     <p class="text-center overflow-x-auto">
@@ -739,15 +766,15 @@
                 </div>
 
                 <h3>Tip: The Relationship Between Score and Epsilon in Common Derivations</h3>
-                <p>Giving the obvious conclusion: <strong>the score is proportional to $\epsilon$</strong></p>
+                <p>Giving the obvious conclusion:<strong>the score is proportional to $\epsilon$</strong></p>
                 <p>The above tip actually illustrates that the training objective of DDPM is fundamentally to predict the score function.</p>
 
                 <h2>Discretization of Forward and Reverse Equations (Sampling)</h2>
                 
                 <p>SDE describes the continuous evolution of random variables over time. However, in practical applications, we cannot perform calculations in continuous time, so we need to discretize the SDE into a series of small time steps. The Euler-Maruyama method is the simplest and most commonly used SDE discretization method.</p>
 
-                <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃 <strong>Before discretizing, it is important to note a fact:</strong></p>
+                <div class="proof-box">
+                    <p class="mt-0"><strong>Before discretizing, it is important to note a fact:</strong></p>
                     <p class="text-center">$$d\mathbf{w} \sim \mathcal{N}(\mathbf{0}, |dt| \cdot \mathbf{I})$$</p>
                     <p>Therefore, we can consider:</p>
                     <p class="text-center mb-0">$$d\mathbf{w} = \sqrt{|dt|} \cdot \mathbf{z} \text{, where } \mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$$</p>
@@ -756,8 +783,8 @@
                 <h3>Euler-Maruyama Discretization of Forward SDE</h3>
                 <p>Let $dt$ be $1$, and take two time points as $\{t, t+1\}$, then:</p>
                 
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃</p>
+                <div class="proof-box">
+                    <p class="mt-0"></p>
                     <p class="text-center overflow-x-auto mb-0">
                         $$\begin{aligned}
                         \mathbf{x}_{t+1} &= \mathbf{x}_t + \mathbf{f}(\mathbf{x}_t, t) \cdot 1 + \mathbf{G}(\mathbf{x}_t, t)\sqrt{1}\mathbf{z}_t \\
@@ -769,8 +796,8 @@
                 <h3>Euler-Maruyama Discretization of Reverse SDE</h3>
                 <p>Let $dt$ be $-1$, and take two time points as $\{t, t-1\}$, then the Reverse SDE can be discretized as:</p>
 
-                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-xl p-6 my-6">
-                    <p class="mt-0">🎃</p>
+                <div class="proof-box">
+                    <p class="mt-0"></p>
                     <p class="text-center overflow-x-auto mb-0">
                         $$\begin{aligned}
                         \mathbf{x}_{t-1} &= \mathbf{x}_t + \left[ \mathbf{f}(\mathbf{x}_t, t) - \nabla \cdot (\mathbf{G}(\mathbf{x}_t, t)\mathbf{G}(\mathbf{x}_t, t)^T) - \mathbf{G}(\mathbf{x}_t, t)\mathbf{G}(\mathbf{x}_t, t)^T \nabla_{\mathbf{x}} \log p_t(\mathbf{x}) \right] \cdot (-1) + \mathbf{G}(\mathbf{x}_t, t)\sqrt{|-1|}\mathbf{z}_t \\
@@ -799,7 +826,7 @@
                 <p>After discretization, it becomes:</p>
                 <p class="text-center">$$\mathbf{x}_{t-1} = (2 - \sqrt{1 - \beta_t})\mathbf{x}_t + \beta_t \mathbf{s}_\theta(\mathbf{x}, t) + \sqrt{\beta_t}\mathbf{z}_t$$</p>
 
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6 my-6">
+                <div class="proof-box">
                     <p class="mt-0 font-bold">Note that this formula is different from the original DDPM formula, but:</p>
                     <ol class="mb-0">
                         <li>They are equivalent when $\beta_t \ll 1$.</li>
@@ -828,15 +855,15 @@
                 <h3>Flow matching</h3>
                 <p>As is well known, the forward process of flow matching is an ODE:</p>
                 <p class="text-center">$$\frac{d\mathbf{x}}{dt} = \mathbf{v}(\mathbf{x}, t)$$</p>
-                <p>Because <strong>throughout the entire forward process, there is no Brownian motion involved; there is only drift and no diffusion.</strong> This is a very typical ODE Forward process.</p>
+                <p>Because<strong>throughout the entire forward process, there is no Brownian motion involved; there is only drift and no diffusion.</strong> This is a very typical ODE Forward process.</p>
 
                 <h3>Converting SDE to ODE (Probability Flow ODE)</h3>
-                <p>Suppose we have an SDE of the form $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$. We can actually convert it into an ODE for the forward process, known as its <strong>Probability Flow ODE</strong>:</p>
+                <p>Suppose we have an SDE of the form $d\mathbf{x} = \mathbf{f}(\mathbf{x}, t)dt + \mathbf{G}(\mathbf{x}, t)d\mathbf{w}$. We can actually convert it into an ODE for the forward process, known as its<strong>Probability Flow ODE</strong>:</p>
                 <p class="text-center">$$d\mathbf{x} = \{\mathbf{f}(\mathbf{x}, t) - \frac{1}{2}\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \frac{1}{2}\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla \log p_t(\mathbf{x})\}dt$$</p>
-                <p>First, <strong>this formula has no Brownian motion, and second, its marginal density is exactly the same as the original SDE.</strong> The proof is as follows (using the Liouville equation):</p>
+                <p>First,<strong>this formula has no Brownian motion, and second, its marginal density is exactly the same as the original SDE.</strong> The proof is as follows (using the Liouville equation):</p>
 
                 <div class="proof-box">
-                    <p>✍️ <strong>Proof:</strong></p>
+                    <p><strong>Proof:</strong></p>
                     <p>Let the marginal density of the probability flow ODE be $q(\mathbf{x}, t)$, and let $\mathbf{D} = \mathbf{G}(\mathbf{x}, \lambda)\mathbf{G}(\mathbf{x}, \lambda)^T$. According to the Liouville equation:</p>
                     <p class="text-center overflow-x-auto">
                         $$\begin{aligned}
@@ -849,7 +876,7 @@
                     <p>Q.E.D.</p>
                 </div>
 
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6 my-6">
+                <div class="proof-box">
                     <p class="mt-0 mb-0 font-bold">Note: If we treat $\mathbf{f}(\mathbf{x}, t) - \frac{1}{2}\nabla \cdot (\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T) - \frac{1}{2}\mathbf{G}(\mathbf{x}, t)\mathbf{G}(\mathbf{x}, t)^T \nabla \log p_t(\mathbf{x})$ as $\mathbf{v}(\mathbf{x}, t)$, it essentially becomes the forward process of flow matching without any difference.</p>
                 </div>
 
@@ -861,7 +888,7 @@
 
                 <h3>ODE Sampling</h3>
                 <p>When using ODE forward, we can naturally use the ODE itself for sampling without any obstacles; simply discretizing it with Euler-Maruyama is sufficient.</p>
-                <p>It is worth noting that <strong>when using SDE forward, we can even use ODE sampling, as long as we formulate it using the probability flow ODE.</strong></p>
+                <p>It is worth noting that<strong>when using SDE forward, we can even use ODE sampling, as long as we formulate it using the probability flow ODE.</strong></p>
                 <p>For example, DDIM is an instance of this: it is trained using an SDE, but sampling is performed using an ODE.</p>
 
                 <h2>Practical ODE Case Study</h2>
@@ -870,7 +897,7 @@
                 <p>For Flow-GRPO, if we want to introduce randomness into sampling, we must transform the reverse process into an SDE.</p>
                 <p>Referring to the original text:</p>
                 
-                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 my-6 italic text-sm">
+                <div class="proof-box">
                     <p class="mt-0">Substituting Eq. 15 to Eq. 14, we arrive at the drift coefficients of the target forward SDE:</p>
                     <p class="text-center">$$f_{\text{SDE}} = \boldsymbol{v}_t(\mathbf{x}_t, t) + \frac{\sigma_t^2}{2} \nabla \log p_t(\mathbf{x})$$</p>
                     <p>Hence, we can rewrite the forward SDE in Eq. 11 as:</p>
@@ -880,8 +907,30 @@
                 <p>It is very easy to see that this is the simplified form of converting ODE to SDE as mentioned above, where $\mathbf{G}(\mathbf{x}, t) = \sigma_t$.</p>
                 <p>From this perspective, it is quickly understood.</p>
 
+                
                 <h2>Conclusion</h2>
                 <p>After this review, we find that the aforementioned knowledge is the key to understanding generative models. Without this foundation, it is impossible to comprehend the related theories and papers.</p>
+                
+                <div class="mt-12 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 not-prose">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                        <span class="lang-zh">引用这篇文章</span><span class="lang-en">Cite this article</span>
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <span class="lang-zh">如果您觉得这篇文章对您有帮助，欢迎引用：</span>
+                        <span class="lang-en">If you find this article helpful, please consider citing it:</span>
+                    </p>
+                    <div class="relative">
+                        <pre class="text-sm bg-white dark:bg-gray-900 p-4 rounded-lg overflow-x-auto text-gray-800 dark:text-gray-300 border border-gray-100 dark:border-gray-800"><code>@article{feng2025sde,
+  title   = {Summary of Basic SDE/ODE Math Derivations in Diffusion Models},
+  author  = {Feng, Wanquan},
+  year    = {2025},
+  url     = {https://wanquanf.github.io/blog/posts/20250912_sde_derivation.html}
+}</code></pre>
+                        <button onclick="copyCitationText(this)" class="absolute top-2 right-2 p-2 text-gray-500 hover:text-blue-500 transition-colors bg-white dark:bg-gray-900 rounded-md shadow-sm border border-gray-100 dark:border-gray-800" title="Copy BibTeX">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
         </article>
         </main>
